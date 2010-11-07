@@ -11,11 +11,11 @@ sub add_method {
         $target = ref($target);
     }
     my $code = \&$class->$method_name;
-    $class->add_method_by_coderef( $target, $code );
+    $class->add_method_by_coderef( $target, $method_name, $code );
 }
 
 sub add_method_by_coderef {
-    my ( $class, $target, $code ) = @_;
+    my ( $class, $target, $method_name, $code ) = @_;
     if ( ref($target) ) {
         $target = ref($target);
     }
