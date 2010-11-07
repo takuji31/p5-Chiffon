@@ -1,7 +1,23 @@
 package Chiffon::Handler;
 use Chiffon;
+use Chiffon::Utils;
+use Chiffon::Web::Request;
+use Chiffon::Web::Response;
 
-our $VERSION = '0.01';
+sub import {
+    my $class  = shift;
+    my $caller = caller;
+
+    #Export method
+    my @methods = qw/new to_app env get_dispatcher dispatch dispatcher view controller plugin/;
+    for my $method (@methods){
+        $class->add_method($caller,$method);
+    }
+
+    #Setup attribute
+    my $attr = +{};
+    $class->add_method_by_coderef($caller,'attr',sub{ $attr });
+}
 
 sub new {
     my ( $class, $args ) = @_;
