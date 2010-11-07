@@ -1,6 +1,8 @@
 package  TestApp::Handler;
 use Chiffon;
-use parent qw/Chiffon::Handler/;
+use Chiffon::Handler;
 
+#dispatcher 'TestApp::Dispatcher';
+view       'Chiffon::View::Xslate';
 
 1;
