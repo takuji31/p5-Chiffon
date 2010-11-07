@@ -10,7 +10,8 @@ sub import {
 
     #Export method
     my @methods
-        = qw/new to_app env get_dispatcher dispatch dispatcher view controller use_container plugin/;
+        = qw/new to_app env get_dispatcher dispatch dispatcher
+        view controller use_container plugin handle_response/;
     for my $method (@methods) {
         $class->add_method( $caller, $method );
     }
