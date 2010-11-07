@@ -17,5 +17,14 @@ sub setup_renderer {
         suffix => $conf->{suffix} || '.html',
     };
     my $xslate = Text::Xslate->new(%$xslate_config);
-    $self->{renderer} = $xslate;
+    $self->set_renderer($xslate);
 }
+
+sub render {
+    my ($self, $controller) = @_;
+
+    my $template = $controller->template_name;
+    $self->renderer->render($template,$self->stash);
+}
+
+1;
