@@ -20,3 +20,7 @@ sub setup_renderer { }
 sub set_renderer { shift->{renderer} = $_[0] }
 
 sub renderer { shift->{renderer} }
+
+sub stash :lvalue { shift->{stash} }
+
+1;
