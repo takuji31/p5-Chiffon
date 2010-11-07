@@ -2,6 +2,7 @@ package Chiffon::Utils;
 use Chiffon;
 use parent qw/Exporter/;
 use Carp ();
+use UNIVERSAL::can;
 
 our @EXPORT = qw/ add_method add_method_by_coderef /;
 
@@ -10,7 +11,10 @@ sub add_method {
     if ( ref($target) ) {
         $target = ref($target);
     }
-    my $code = \&$class->$method_name;
+    my $code = $class->can($method_name);
+    unless ($code) {
+        Carp::croak("Method $class\::$method_name does not exists!");
+    }
     $class->add_method_by_coderef( $target, $method_name, $code );
 }
 
