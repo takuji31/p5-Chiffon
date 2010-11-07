@@ -5,6 +5,10 @@ readme_pod_from 'lib/Chiffon.pm';
 githubmeta;
 
 # requires '';
+requires 'UNIVERSAL::can';
+requires 'UNIVERSAL::require';
+requires 'Carp';
+requires 'Exporter';
 
 tests 't/*.t';
 author_tests 'xt';
