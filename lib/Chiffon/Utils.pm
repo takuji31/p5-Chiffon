@@ -23,7 +23,7 @@ sub add_method_by_coderef {
     if ( ref($target) ) {
         $target = ref($target);
     }
-    unless ( ref($code) ne 'CODE' ) {
+    unless ( ref($code) eq 'CODE' ) {
         Carp::croak("This is not code reference! $code");
     }
     {
