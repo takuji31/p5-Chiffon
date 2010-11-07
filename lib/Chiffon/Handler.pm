@@ -75,21 +75,33 @@ __END__
 
 =head1 NAME
 
-Chiffon - Web application framework for PSGI/Plack
+Chiffon::Handler - Plack app handler for Chiffon
 
 =head1 SYNOPSIS
 
-  chiffon.pl -p MyApp;
+package MyApp::Handler;
+use Chiffon::Handler;
+
+dispatcher 'MyApp::Dispatcher';
+view       'Chiffon::View::Xslate';
+
+
+app.psgi
+
+use MyApp::Handler;
+use Plack::Builder;
+
+builder {
+    MyApp::Handler->to_app;
+};
 
 =head1 DESCRIPTION
 
-Chiffon is web application framework for PSGI/Plack
+Plack app handler for Chiffon
 
 =head1 AUTHOR
 
 Nishibayashi Takuji E<lt>takuji {at} senchan.jpE<gt>
-
-=head1 SEE ALSO
 
 =head1 LICENSE
 
