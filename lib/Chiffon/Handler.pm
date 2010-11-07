@@ -11,7 +11,7 @@ sub import {
     #Export method
     my @methods
         = qw/new to_app env get_dispatcher dispatch dispatcher
-        view controller use_container plugin handle_response/;
+        view use_container plugin handle_response/;
     for my $method (@methods) {
         $class->add_method( $caller, $method );
     }
@@ -47,12 +47,6 @@ sub view($) {          ## no critic
     my $pkg = shift;
     $pkg->use or die $@;
     caller->attr->{view} = $pkg;
-}
-
-sub controller($) {    ## no critic
-    my $pkg = shift;
-    $pkg->use or die $@;
-    caller->attr->{controller} = $pkg;
 }
 
 sub plugin($) {        ## no critic
