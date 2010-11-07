@@ -40,19 +40,19 @@ sub to_app {
 sub dispatcher($) {    ## no critic
     my $pkg = shift;
     $pkg->use or die $@;
-    caller->attr->{dispatcher} = $pkg;
+    caller->attr->{dispatcher_class} = $pkg;
 }
 
 sub view($) {          ## no critic
     my $pkg = shift;
     $pkg->use or die $@;
-    caller->attr->{view} = $pkg;
+    caller->attr->{view_class} = $pkg;
 }
 
 sub plugin($) {        ## no critic
     my $pkg = shift;
     $pkg->use or die $@;
-    caller->attr->{plugin} = $pkg;
+    caller->attr->{plugin_class} = $pkg;
 }
 
 sub use_container($) {    ## no critic
