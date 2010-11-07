@@ -36,13 +36,39 @@ sub to_app {
     };
 }
 
+sub dispatcher($) { ## no critic
+    my $dispatcher = shift;
+    caller->attr->{dispatcher} = $dispatcher;
+}
+
+sub view($) { ## no critic
+    my $view = shift;
+    caller->attr->{view} = $view;
+}
+
+sub controller($) { ## no critic
+    my $controller = shift;
+    caller->attr->{controller} = $controller;
+}
+
+sub plugin($) { ## no critic
+    my $plugin = shift;
+    caller->attr->{plugin} = $plugin;
+}
 
 #Instance methods
 
-sub env { shift->{env} };
-sub dispatcher { shift->{dispatcher} };
+sub env { shift->{env} }
+sub get_dispatcher { shift->{dispatcher} }
 
-sub dispatch { return [200,['Content-Type'=>'text/plain'],['test']]}
+sub dispatch {
+    my $self = shift;
+
+    my $req = Chiffon::Web::Request->new($self->env);
+    my $res = Chiffon::Web::Response->new;
+    my $dispatcher = $self->get_dispatcher;
+    return [200,['Content-type' => 'text/plain'],['Dummy response!']];
+}
 
 1;
 __END__
