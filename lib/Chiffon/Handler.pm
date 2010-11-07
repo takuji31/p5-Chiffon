@@ -9,14 +9,15 @@ sub import {
     my $caller = caller;
 
     #Export method
-    my @methods = qw/new to_app env get_dispatcher dispatch dispatcher view controller plugin/;
-    for my $method (@methods){
-        $class->add_method($caller,$method);
+    my @methods
+        = qw/new to_app env get_dispatcher dispatch dispatcher view controller use_container plugin/;
+    for my $method (@methods) {
+        $class->add_method( $caller, $method );
     }
 
     #Setup attribute
     my $attr = +{};
-    $class->add_method_by_coderef($caller,'attr',sub{ $attr });
+    $class->add_method_by_coderef( $caller, 'attr', sub {$attr} );
 }
 
 sub new {
@@ -24,7 +25,6 @@ sub new {
     my $self = bless $args, $class;
     return $self;
 }
-
 
 sub to_app {
     my $class = shift;
@@ -36,38 +36,57 @@ sub to_app {
     };
 }
 
-sub dispatcher($) { ## no critic
-    my $dispatcher = shift;
-    caller->attr->{dispatcher} = $dispatcher;
+sub dispatcher($) {    ## no critic
+    my $pkg = shift;
+    caller->attr->{dispatcher} = $pkg;
 }
 
-sub view($) { ## no critic
-    my $view = shift;
-    caller->attr->{view} = $view;
+sub view($) {          ## no critic
+    my $pkg = shift;
+    caller->attr->{view} = $pkg;
 }
 
-sub controller($) { ## no critic
+sub controller($) {    ## no critic
     my $controller = shift;
-    caller->attr->{controller} = $controller;
+    caller->attr->{controller} = $pkg;
 }
 
-sub plugin($) { ## no critic
-    my $plugin = shift;
-    caller->attr->{plugin} = $plugin;
+sub plugin($) {        ## no critic
+    my $pkg = shift;
+    caller->attr->{plugin} = $pkg;
+}
+
+sub use_container($) {    ## no critic
+    my $pkg = shift;
+    $pkg->use or die $@;
 }
 
 #Instance methods
 
-sub env { shift->{env} }
+sub env            { shift->{env} }
 sub get_dispatcher { shift->{dispatcher} }
 
 sub dispatch {
     my $self = shift;
 
-    my $req = Chiffon::Web::Request->new($self->env);
-    my $res = Chiffon::Web::Response->new;
+    my $req        = Chiffon::Web::Request->new( $self->env );
+    my $res        = Chiffon::Web::Response->new;
     my $dispatcher = $self->get_dispatcher;
-    return [200,['Content-type' => 'text/plain'],['Dummy response!']];
+    return $self->handle_response( 'Dummy response!',
+        200, [ 'Content-type' => 'text/plain' ] );
+}
+
+sub handle_response {
+    my ( $self, $body, $status, $header ) = @_;
+
+    $status ||= 200;
+    $header ||= [ 'Content-Type' => 'text/html;charset=UTF-8' ];
+
+    my $res = $self->res;
+    $res->status($status);
+    $res->headers($header);
+    $res->body($body);
+    return $res->finalize;
 }
 
 1;
