@@ -9,6 +9,7 @@ requires 'UNIVERSAL::can';
 requires 'UNIVERSAL::require';
 requires 'Carp';
 requires 'Exporter';
+requires 'Router::Simple';
 
 tests 't/*.t';
 author_tests 'xt';
