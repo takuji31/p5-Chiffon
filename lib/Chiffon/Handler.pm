@@ -9,8 +9,7 @@ sub import {
     my $caller = caller;
 
     #Export method
-    my @methods
-        = qw/new to_app env get_dispatcher dispatch dispatcher
+    my @methods = qw/new to_app env create_dispatcher get_dispatcher dispatch dispatcher
         view use_container plugin handle_response/;
     for my $method (@methods) {
         $class->add_method( $caller, $method );
@@ -33,6 +32,7 @@ sub to_app {
     sub {
         my $env = shift;
         my $self = $class->new( { env => $env } );
+        $self->create_dispatcher;
         $self->dispatch;
     };
 }
@@ -62,7 +62,14 @@ sub use_container($) {    ## no critic
 
 #Instance methods
 
-sub env            { shift->{env} }
+sub env { shift->{env} }
+
+sub create_dispatcher {
+    my $self       = shift;
+    my $dispatcher = $self->attr->{dispatcher_class}->new( $self->env )
+        or Carp::croak('Dispatcher not found!');
+    $self->{dispatcher} = $dispatcher;
+}
 sub get_dispatcher { shift->{dispatcher} }
 
 sub dispatch {
