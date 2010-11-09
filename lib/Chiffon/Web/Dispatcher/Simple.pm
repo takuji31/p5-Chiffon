@@ -7,7 +7,7 @@ sub import {
     my $class  = shift;
     my $caller = caller;
 
-    my @functions = qw/ new route all_action /;
+    my @functions = qw/ new route all_action _create_instance _create_router _set_rule match /;
     for my $function (@functions) {
         $class->add_method($caller,$function);
     }
@@ -33,7 +33,7 @@ sub _create_instance {
 
 sub _create_router {
     my $self = shift;
-    $self->{router} = Router::Simpler->new();
+    $self->{router} = Router::Simple->new();
 }
 
 sub _set_rule {
