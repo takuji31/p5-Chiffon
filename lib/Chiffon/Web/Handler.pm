@@ -1,4 +1,4 @@
-package Chiffon::Handler;
+package Chiffon::Web::Handler;
 use Chiffon;
 use Chiffon::Utils;
 use Chiffon::Web::Request;

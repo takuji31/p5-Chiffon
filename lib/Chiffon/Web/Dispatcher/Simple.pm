@@ -1,4 +1,4 @@
-package  Chiffon::Dispatcher::Simple;
+package  Chiffon::Web::Dispatcher::Simple;
 use Chiffon;
 use Router::Simple;
 use Chiffon::Utils;
