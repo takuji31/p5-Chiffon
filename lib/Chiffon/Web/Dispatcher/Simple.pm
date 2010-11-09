@@ -58,4 +58,10 @@ sub all_action {
     push @{caller->rule},["$pattern/:action",{ controller => $controller, %params }];
 }
 
+sub match {
+    my ( $self, $path ) = @_;
+
+    return $self->{router}->match($path);
+}
+
 1;
