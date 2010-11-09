@@ -9,8 +9,9 @@ sub import {
     my $caller = caller;
 
     #Export method
-    my @methods = qw/new to_app env create_dispatcher get_dispatcher dispatch dispatcher
-        view use_container plugin handle_response/;
+    my @methods
+        = qw/new to_app env create_dispatcher get_dispatcher dispatch dispatcher
+        view use_container plugin handle_response req res request response/;
     for my $method (@methods) {
         $class->add_method( $caller, $method );
     }
@@ -62,7 +63,11 @@ sub use_container($) {    ## no critic
 
 #Instance methods
 
-sub env { shift->{env} }
+sub env      { shift->{env} }
+sub req      { shift->{req} }
+sub res      { shift->{res} }
+sub request  { shift->{request} }
+sub response { shift->{response} }
 
 sub create_dispatcher {
     my $self       = shift;
@@ -77,7 +82,10 @@ sub dispatch {
 
     my $req        = Chiffon::Web::Request->new( $self->env );
     my $res        = Chiffon::Web::Response->new;
+    $self->{req} = $req;
+    $self->{res} = $res;
     my $dispatcher = $self->get_dispatcher;
+
     return $self->handle_response( 'Dummy response!',
         200, [ 'Content-type' => 'text/plain' ] );
 }
