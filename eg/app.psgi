@@ -1,7 +1,7 @@
 use Plack::Builder;
-use TestApp::Handler;
+use TestApp::Web::Handler;
 
 builder {
     enable 'StackTrace';
-    TestApp::Handler->to_app;
+    TestApp::Web::Handler->to_app;
 };
