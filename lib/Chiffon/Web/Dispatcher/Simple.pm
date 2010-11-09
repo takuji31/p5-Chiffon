@@ -16,15 +16,31 @@ sub import {
     $class->add_method_by_coderef($caller,'rule',sub{$rule});
 }
 
-sub new{
+sub new {
     my $class = shift;
-    my $args  = +{ router => Router::Simple->new()};
-    my $self  =bless $args,$class;
-    for my $rule (@{$class->rule}) {
+    my $self  = $class->_create_instance(@_);
+    $self->_create_router;
+    $self->_set_rule;
+    return $self;
+}
+
+sub _create_instance {
+    my $class = shift;
+    my $args  = \%_ || {};
+    my $self  = bless $args,$class;
+    return $self;
+}
+
+sub _create_router {
+    my $self = shift;
+    $self->{router} = Router::Simpler->new();
+}
+
+sub _set_rule {
+    my $self = shift;
+    for my $rule (@{$self->rule}) {
         $self->{router}->connect(@$rule);
     }
-    warn $self->{router}->as_string();
-    return $self;
 }
 
 sub route {
