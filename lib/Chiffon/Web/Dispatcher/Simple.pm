@@ -59,9 +59,9 @@ sub all_action {
 }
 
 sub match {
-    my ( $self, $path ) = @_;
-
-    return $self->{router}->match($path);
+    my ( $self, $env ) = @_;
+    $env ||= $self->{env};
+    return $self->{router}->match($env);
 }
 
 1;
