@@ -8,7 +8,7 @@ our $default_rules = [
     ['root','/:action',{ controller => 'root' }],
     ['default_index','/:controller/',{ action => 'index'}],
     ['default','/:controller/:action',{}],
-    [qr{^/([a-zA-Z0-9_]+)/([a-zA-Z0-9_]+)/(.+[^/])/?},{ with_param => 1, }],
+    [qr{^/([a-zA-Z][a-zA-Z0-9_]*)/([a-zA-Z][a-zA-Z0-9_]*)/(.*[^/])/?},{ with_param => 1, }],
 ];
 
 sub new {
