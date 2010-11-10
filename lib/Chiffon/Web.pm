@@ -1,4 +1,4 @@
-package Chiffon::Web::Handler;
+package Chiffon::Web;
 use Chiffon;
 use Chiffon::Utils;
 use Chiffon::Web::Request;
@@ -16,9 +16,6 @@ sub import {
         $class->add_method( $caller, $method );
     }
 
-    #Setup attribute
-    my $attr = +{};
-    $class->add_method_by_coderef( $caller, 'attr', sub {$attr} );
 }
 
 sub new {
@@ -27,7 +24,7 @@ sub new {
     return $self;
 }
 
-sub to_app {
+sub app {
     my $class = shift;
 
     sub {
@@ -38,27 +35,21 @@ sub to_app {
     };
 }
 
-sub dispatcher($) {    ## no critic
-    my $pkg = shift;
-    $pkg->use or die $@;
-    caller->attr->{dispatcher_class} = $pkg;
+sub dispatcher {
+    my $class = shift;
+    return "$class\::Dispatcher";
 }
 
-sub view($) {          ## no critic
-    my $pkg = shift;
-    $pkg->use or die $@;
-    caller->attr->{view_class} = $pkg;
+sub view { "Chiffon::View::Xslate" }
+
+sub plugin {
+    return [];
 }
 
-sub plugin($) {        ## no critic
-    my $pkg = shift;
-    $pkg->use or die $@;
-    caller->attr->{plugin_class} = $pkg;
-}
-
-sub use_container($) {    ## no critic
-    my $pkg = shift;
-    $pkg->use or die $@;
+sub container {
+    my $class = shift;
+    $class =~ /^(.+)::[^:]+$/;
+    return "$1\::Container";
 }
 
 #Instance methods
@@ -66,12 +57,10 @@ sub use_container($) {    ## no critic
 sub env      { shift->{env} }
 sub req      { shift->{req} }
 sub res      { shift->{res} }
-sub request  { shift->{request} }
-sub response { shift->{response} }
 
 sub create_dispatcher {
     my $self       = shift;
-    my $dispatcher = $self->attr->{dispatcher_class}->new( $self->env )
+    my $dispatcher = $self->attr->{dispatcher_class}->new({ env => $self->env })
         or Carp::croak('Dispatcher not found!');
     $self->{dispatcher} = $dispatcher;
 }
@@ -80,11 +69,12 @@ sub get_dispatcher { shift->{dispatcher} }
 sub dispatch {
     my $self = shift;
 
-    my $req        = Chiffon::Web::Request->new( $self->env );
-    my $res        = Chiffon::Web::Response->new;
-    $self->{req} = $req;
-    $self->{res} = $res;
-    my $dispatcher = $self->get_dispatcher;
+    $self->{req} = Chiffon::Web::Request->new( $self->env );
+    $self->{res} = Chiffon::Web::Response->new;
+    my $dispatch_rule = $self->get_dispatcher->match;
+    unless ( $dispatch_rule ) {
+        return $self->handle_response('404 Not Found',404);
+    }
 
     return $self->handle_response( 'Dummy response!',
         200, [ 'Content-type' => 'text/plain' ] );
