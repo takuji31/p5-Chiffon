@@ -10,8 +10,8 @@ sub import {
 
     #Export method
     my @methods
-        = qw/new to_app env create_dispatcher get_dispatcher dispatch dispatcher
-        view use_container plugin handle_response req res request response/;
+        = qw/new app env create_dispatcher get_dispatcher dispatch dispatcher
+        view container plugin handle_response req res/;
     for my $method (@methods) {
         $class->add_method( $caller, $method );
     }
