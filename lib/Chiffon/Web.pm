@@ -9,9 +9,13 @@ sub import {
     my $caller = caller;
 
     #Export method
-    my @methods
-        = qw/new app env create_dispatcher get_dispatcher create_view get_view dispatch dispatcher
-        view container plugin handle_response req res/;
+    my @methods = qw/
+        new app
+        create_request create_response create_dispatcher create_view
+        container_class dispatcher_class view_class plugin_classes
+        env req res dispatcher view
+        dispatch handle_response
+    /;
     for my $method (@methods) {
         $class->add_method( $caller, $method );
     }
@@ -34,10 +38,12 @@ sub app {
         $self->create_response;
         $self->create_dispatcher;
         $self->create_view;
-        
+
         return $self->dispatch;
     };
 }
+
+#class name methods
 
 sub dispatcher_class {
     my $self = shift;
@@ -51,7 +57,7 @@ sub plugin_classes {
     return [];
 }
 
-sub container {
+sub container_class {
     my $self = shift;
     my $class = ref($self) || $self;
     $class =~ /^(.+)::[^:]+$/;
