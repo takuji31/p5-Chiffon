@@ -2,6 +2,7 @@ package  Chiffon::Web::Dispatcher;
 use Chiffon;
 
 use parent qw/Chiffon::Web::Dispatcher::Simple/;
+use String::CamelCase qw/camelize/;
 
 our $default_rules = [
     ['root_index','/',{ controller => 'root', action => 'index'}],
@@ -26,7 +27,7 @@ sub match {
     my $self = shift;
     my $match = $self->SUPER::match(@_);
     if ( $match ) {
-        if( $match->{with_param} )
+        if( $match->{with_param} ) {
             $match->{controller} = shift @{$match->{splat}};
             $match->{action} = shift @{$match->{splat}};
             my $params_str = shift @{$match->{splat}};
@@ -43,10 +44,12 @@ sub match {
         if($controller =~ /^[_0-9]/) {
             return undef;
         }
+        $match->{controller} = camelize($controller);
         my $action     = $match->{action};
         if($action =~ /^[_0-9]/) {
             return undef;
         }
+        $match->{template} = "$controller/$action";
     }
     return $match;
 
