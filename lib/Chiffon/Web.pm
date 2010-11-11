@@ -12,7 +12,7 @@ sub import {
     my @methods = qw/
         new app
         create_request create_response create_dispatcher create_view
-        container_class dispatcher_class view_class plugin_classes
+        container_class dispatcher_class view_class plugins
         env req res dispatcher view
         dispatch handle_response
     /;
@@ -53,9 +53,7 @@ sub dispatcher_class {
 
 sub view_class { "Chiffon::View::Xslate" }
 
-sub plugin_classes {
-    return [];
-}
+sub plugins { [] }
 
 sub container_class {
     my $self = shift;
