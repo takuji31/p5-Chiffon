@@ -26,7 +26,7 @@ sub new {
 
 sub _create_instance {
     my $class = shift;
-    my $args  = \%_ || {};
+    my $args  = shift;
     my $self  = bless $args,$class;
     return $self;
 }
@@ -54,8 +54,8 @@ sub route {
 sub all_action {
     my $pattern    = shift;
     my $controller = shift;
-    my %params     = %_;
-    push @{caller->rule},["$pattern/:action",{ controller => $controller, %params }];
+    my $params     = shift;
+    push @{caller->rule},["$pattern/:action",{ controller => $controller, %$params }];
 }
 
 sub match {
