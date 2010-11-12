@@ -1,5 +1,6 @@
 package  Chiffon::Web::Controller;
 use Chiffon;
+use Chiffon::Utils;
 use Carp();
 
 sub import {
@@ -7,9 +8,13 @@ sub import {
     my $caller = caller;
 
     my @methods = qw/
-        new
-        add_before_dispatch add_after_dispatch
+        new call_trigger
+        req res request response view
+        stash redirect
     /;
+    for my $method ( @methods ) {
+        $class->add_method($caller,$targer,$method);
+    }
 }
 
 sub new {
@@ -41,9 +46,16 @@ sub call_trigger {
     }
 }
 
+sub redirect {
+    my $self = shift;
+    return $self->res->redirect(@_);
+}
 
 sub req      { shift->{req} }
 sub res      { shift->{res} }
 sub request  { shift->{req} }
 sub response { shift->{res} }
+sub view     { shift->{view} }
+sub stash    { shift->view->{stash} }
+
 1;

@@ -3,6 +3,7 @@ use Chiffon;
 use Chiffon::Utils;
 use Chiffon::Web::Request;
 use Chiffon::Web::Response;
+use UNIVERSAL::require;
 
 sub import {
     my $class  = shift;
@@ -100,8 +101,29 @@ sub dispatch {
         return $self->handle_response('404 Not Found',404);
     }
 
-    return $self->handle_response( 'Dummy response!',
-        200, [ 'Content-type' => 'text/plain' ] );
+    my $class = ref($self);
+    my $controller_class = join '::',$class,'C',$dispatch_rule->{controller};
+
+    $controller_class->use
+        or return $self->handle_response("Controller $controller_class not found !");
+
+    my $c = $controller_class->new(
+        {
+            req      => $self->req,
+            res      => $self->res,
+            view     => $self->view,
+            template => $dispatcher_rule->{template},
+        }
+    );
+    
+    my $action = $dispatch_rule->{action};
+    unless ( $c->can($action) ) {
+        return $self->handle_response("Action $controller_class\::$action not found !");
+    }
+    $c->action();
+
+    return $c->view->render;
+
 }
 
 sub handle_response {
