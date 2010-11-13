@@ -12,7 +12,7 @@ sub import {
 
     my ( $mode, $args ) = @_;
     # use Chiffon::Container -base;
-    if( $mode eq '-base' ) {
+    if( $mode && $mode eq '-base' ) {
         # Nothing to do ?
         $args ||= {};
         {
