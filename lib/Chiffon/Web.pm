@@ -12,7 +12,7 @@ sub import {
     #Export method
     my @methods = qw/
         new app
-        create_request create_response create_dispatcher create_view
+        create_request create_response create_dispatcher
         container_class dispatcher_class view_class plugins
         env req res dispatcher view
         dispatch handle_response
@@ -38,7 +38,6 @@ sub app {
         $self->create_request;
         $self->create_response;
         $self->create_dispatcher;
-        $self->create_view;
 
         return $self->dispatch;
     };
@@ -79,24 +78,19 @@ sub create_dispatcher {
         or Carp::croak('Dispatcher not found!');
     $self->{dispatcher} = $dispatcher;
 }
-sub create_view {
-    my $self       = shift;
-    my $view = $self->view_class->new({ env => $self->env })
-        or Carp::croak('View not found!');
-    $self->{view} = $view;
-}
 
 sub env { shift->{env} }
 sub req { shift->{req} }
 sub res { shift->{res} }
 sub dispatcher { shift->{dispatcher} }
-sub view { shift->{view} }
+sub view { 'Chiffon::View::Xslate' }
 
 sub dispatch {
     my $self = shift;
 
     $self->{res} = Chiffon::Web::Response->new;
     my $dispatch_rule = $self->dispatcher->match;
+    # StaticはMiddlewareかサーバー側でうまいことやってる前提
     unless ( $dispatch_rule ) {
         return $self->handle_response('404 Not Found',404);
     }
