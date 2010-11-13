@@ -13,7 +13,7 @@ sub import {
     my @methods = qw/
         new app
         create_request create_response create_dispatcher
-        container_class dispatcher_class view_class plugins
+        container_class dispatcher_class plugins
         env req res dispatcher view
         dispatch handle_response
     /;
@@ -51,15 +51,13 @@ sub dispatcher_class {
     return "$class\::Dispatcher";
 }
 
-sub view_class { "Chiffon::View::Xslate" }
-
 sub plugins { [] }
 
 sub container_class {
     my $self = shift;
     my $class = ref($self) || $self;
-    $class =~ /^(.+)::[^:]+$/;
-    return "$1\::Container";
+    my $basename = $class->base_name;
+    return "$basename\::Container";
 }
 
 #Instance methods
@@ -88,7 +86,6 @@ sub view { 'Chiffon::View::Xslate' }
 sub dispatch {
     my $self = shift;
 
-    $self->{res} = Chiffon::Web::Response->new;
     my $dispatch_rule = $self->dispatcher->match;
     # StaticはMiddlewareかサーバー側でうまいことやってる前提
     unless ( $dispatch_rule ) {
@@ -98,25 +95,35 @@ sub dispatch {
     my $class = ref($self);
     my $controller_class = join '::',$class,'C',$dispatch_rule->{controller};
 
-    $controller_class->use
-        or return $self->handle_response("Controller $controller_class not found !");
+    $controller_class->use or do{
+        warn "404 Controller not found $@";
+        return $self->handle_response('404 Not Fount',404);
+    };
 
     my $c = $controller_class->new(
         {
-            req      => $self->req,
-            res      => $self->res,
-            view     => $self->view,
-            template => $dispatcher_rule->{template},
+            req           => $self->req,
+            res           => $self->res,
+            view          => $self->view,
+            dispatch_rule => $dispatch_rule,
+            stash         => {},
+            config        => $self->container_class->get('conf') || {},
         }
     );
     
     my $action = $dispatch_rule->{action};
     unless ( $c->can($action) ) {
-        return $self->handle_response("Action $controller_class\::$action not found !");
+        return $self->handle_response("Action $controller_class\::$action not found !",404);
     }
-    $c->action();
+    $c->call_trigger('before_action');
+    $c->$action();
+    $c->call_trigger('after_action');
 
-    return $c->view->render;
+    $c->call_trigger('before_render');
+    my $response = $self->view->render($c);
+    $c->call_trigger('after_render');
+
+    return $response->finalize;
 
 }
 

@@ -9,12 +9,19 @@ sub import {
 
     my @methods = qw/
         new call_trigger
-        req res request response view
-        stash redirect
+        req res request response view template
+        stash redirect config
     /;
     for my $method ( @methods ) {
-        $class->add_method($caller,$targer,$method);
+        $class->add_method( $caller, $method );
     }
+    my $t = {
+        before_action =>[],
+        before_render =>[],
+        after_action  =>[],
+        after_render  =>[],
+    };
+    $class->add_method_by_coderef( $caller, 'triggers', sub{ $t } );
 }
 
 sub new {
@@ -41,7 +48,7 @@ sub call_trigger {
     my ( $self, $trigger ) = @_;
     my $codes = $self->triggers->{$trigger} || [];
 
-    for my $code = ( @codes ) {
+    for my $code ( @$codes ) {
         $code->( $self );
     }
 }
@@ -51,11 +58,13 @@ sub redirect {
     return $self->res->redirect(@_);
 }
 
-sub req      { shift->{req} }
-sub res      { shift->{res} }
-sub request  { shift->{req} }
-sub response { shift->{res} }
-sub view     { shift->{view} }
-sub stash    { shift->view->{stash} }
+sub req           { shift->{req} }
+sub res           { shift->{res} }
+sub request       { shift->{req} }
+sub response      { shift->{res} }
+sub config        { shift->{config} }
+sub view          { shift->{view} }
+sub stash :lvalue { shift->{stash} }
+sub template      { shift->{dispatch_rule}->{template} }
 
 1;
