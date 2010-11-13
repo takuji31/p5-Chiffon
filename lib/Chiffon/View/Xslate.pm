@@ -6,11 +6,12 @@ use parent qw/Chiffon::View/;
 
 sub setup_renderer {
     my $self = shift;
-    my $conf = $self->{config};
+    my $conf = $self->config;
+    my $app_name = $self->app_name;
     my $xslate_config = {
         path  => $conf->{template_path},
         cache => 1,
-        cache_dir => $conf->{cache_dir} || '/tmp/'.$conf->{app_name}.'/',
+        cache_dir => $conf->{cache_dir} || '/tmp/'.$app_name.'/',
         module => $conf->{module} || [],
         syntax => $conf->{tterse} ? 'TTerse' : 'Kolon',
         type => 'html',
@@ -21,9 +22,8 @@ sub setup_renderer {
 }
 
 sub render {
-    my ($self, $controller) = @_;
+    my ($self, $template) = @_;
 
-    my $template = $controller->template_name;
     $self->renderer->render($template,$self->stash);
 }
 

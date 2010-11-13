@@ -17,10 +17,22 @@ sub render { die 'Abstruct method render !' }
 
 sub setup_renderer { }
 
-sub set_renderer { shift->{renderer} = $_[0] }
+sub set_renderer { shift->{renderer} = shift }
 
 sub renderer { shift->{renderer} }
 
 sub stash :lvalue { shift->{stash} }
+
+sub config {
+    my $self = shift;
+    my $class = ref ($self);
+    return $self->{config}->{$class} || +{};
+}
+
+sub app_name {
+    my $self = shift;
+    my $class = ref ($self);
+    return $self->{config}->{app_name} || +{};
+}
 
 1;
