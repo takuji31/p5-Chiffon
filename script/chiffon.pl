@@ -1,6 +1,9 @@
 #! /usr/bin/env perl
 use Chiffon::Bakery::Project;
+use opts;
 
-if($ARGV[0]) {
-    Chiffon::Bakery::Project->bake($ARGV[0]);
+opts my $project => { isa => 'Str', required => 1 };
+
+if($project) {
+    Chiffon::Bakery::Project->bake($project);
 }

@@ -151,5 +151,5 @@ sub do_index {
 @@ template.tx
 :cascade [% layout || 'layout' %];
 :around content -> {
-    content here
+    [% body || 'Hello Chiffon World!' %]
 :}
