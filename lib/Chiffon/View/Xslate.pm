@@ -12,10 +12,10 @@ sub render {
     my $conf          = $c->config->{view}->{$class} || {};
     my $app_name      = $c->config->{app_name} || 'chiffon_app';
     my $xslate_config = {
-        path      => $conf->{path},
+        path      => delete $conf->{path},
         cache     => 1,
         cache_dir => '/tmp/' . $app_name . '/',
-        syntax    => $conf->{tterse} ? 'TTerse' : 'Kolon',
+        syntax    => delete $conf->{tterse} ? 'TTerse' : 'Kolon',
         type      => 'html',
         suffix    => '.html',
         %$conf,
