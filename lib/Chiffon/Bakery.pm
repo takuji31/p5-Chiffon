@@ -2,25 +2,52 @@ package  Chiffon::Bakery;
 use Chiffon;
 use Text::Xslate;
 use Data::Section::Simple;
+use Path::Class;
+use Cwd ();
+
 sub bake { die 'Method bake is abstract' }
 
 sub render {
     my ( $class, $template, $args ) = @_;
 
     my $tx = Text::Xslate->new(
-        path => [ Data::Section::Simple->new($class)->get_data_section ]
+        path => [ Data::Section::Simple->new(__PACKAGE__)->get_data_section ],
         syntax => 'TTerse',
     );
 
-    return $tx->render( $template , $args || {} );
+    return $tx->render( $template, $args || {} );
 }
 
 sub output {
-    #TODO Output to file
+    my ( $class, $path, $filename, $data ) = @_;
+
+    #Current directory
+    my $current = Path::Class::dir(Cwd::getcwd);
+    my $dist_dir
+        = $current->subdir($path);
+    my $dist = $dist_dir->file($filename);
+
+    #mkdir
+    $dist_dir->mkpath;
+
+    #write data
+    #TODO 上書き確認
+    print 'Write file ' . $dist->stringify . "\n";
+    my $fh = $dist->openw();
+    print $fh $data;
+    close $fh;
+}
+
+sub output_template {
+    my ( $class, $template_name, $path, $filename, $param ) = @_;
+
+    my $data = $class->render($template_name,$param);
+    $class->output($path,$filename,$data);
 }
 
 1;
 __DATA__
+
 @@ app.psgi.tx
 use [% package %]::Web;
 use [% package %]::Container;
@@ -37,7 +64,6 @@ builder {
 
 @@ Root.tx
 package [% package %];
-
 use Chiffon;
 our $VERSION = '0.01';
 
@@ -60,7 +86,7 @@ use [% package %]::Container;
 
 1;
 
-@@ Dispacher.tx
+@@ Dispatcher.tx
 package  [% package %]::Web::Dispatcher;
 use Chiffon;
 use Chiffon::Web::Dispatcher;
