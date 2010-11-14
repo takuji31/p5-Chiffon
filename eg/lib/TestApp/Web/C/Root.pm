@@ -3,10 +3,13 @@ use Chiffon;
 use Chiffon::Web::Controller;
 use TestApp::Container;
 
-sub index {
+sub do_index {
     my $self = shift;
     $self->stash->{title} = "Hello Chiffon World!";
-    warn container('home')->stringify;
+}
+sub do_test {
+    my $self = shift;
+    return $self->redirect("http://senchan.jp");
 }
 
 1;
