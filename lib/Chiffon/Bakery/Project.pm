@@ -1,6 +1,7 @@
 package  Chiffon::Bakery::Project;
 use Chiffon;
 use parent qw/Chiffon::Bakery/;
+use String::CamelCase qw/decamelize/;
 
 sub bake {
     my ( $class, $proj ) = @_;
@@ -17,6 +18,10 @@ sub bake {
     #Hoge-Fuga
     ( my $projpath = $proj ) =~ s/::/-/;
 
+    #hoge_huga
+    ( my $app    = $proj ) =~ s/::/_/;
+    my $app_name = decamelize($app);
+
     #Hoge
     ( my $parent = $proj ) =~ s/(::)?[a-zA-Z0-9]+$//;
 
@@ -29,10 +34,11 @@ sub bake {
     #Fuga.pm
     my $rootpm = $basename . '.pm';
 
-    my $param = { package => $package };
+    my $param = { package => $package, app_name => $app_name };
 
     my $output_files = [
         ['app.psgi.tx',"$projpath/",'app.psgi',$param],
+        ['config.pl.tx',"$projpath/",'config.pl',$param],
         ['Root.tx',"$projpath/$libpath/",$rootpm,$param],
         ['Container.tx',"$projpath/$libpath/$basename/",'Container.pm',$param],
         ['Web.tx',"$projpath/$libpath/$basename/",'Web.pm',$param],

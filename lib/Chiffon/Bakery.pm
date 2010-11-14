@@ -62,6 +62,35 @@ builder {
    [% package %]::Web->app;
 };
 
+@@ config.pl.tx
+use Chiffon;
+use [% package %]::Container;
+use Path::Class;
+
+my $home = container('home');
+return +{
+    common => {
+        app_name => '[% app_name %]',
+        view => {
+            'Chiffon::View::Xslate' => +{
+                path => $home->file('assets/template')->stringify,
+                tterse => 0,
+            },
+        },
+        datasource => +{
+        },
+        hostname => +{
+        },
+        plugins => +{
+        },
+    },
+    dev     => {
+    },
+    product => {
+    },
+};
+
+
 @@ Root.tx
 package [% package %];
 use Chiffon;
@@ -111,12 +140,12 @@ sub do_index {
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title><: $title -> {[% default_title || 'Default title here' %]} :></title>
+  <title><: block title -> { '[% default_title || "Default title here" %]' } :></title>
 </head>
 <body>
 : block content -> {
     body
-}
+:}
 </body>
 </html>
 @@ template.tx
