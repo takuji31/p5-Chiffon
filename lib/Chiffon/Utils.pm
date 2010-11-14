@@ -1,10 +1,20 @@
 package Chiffon::Utils;
 use Chiffon;
-use parent qw/Exporter/;
 use Carp ();
 use UNIVERSAL::can;
 
-our @EXPORT = qw/ add_method add_method_by_coderef /;
+sub import {
+    my $class  = shift;
+    my $caller = caller;
+    my @functions = qw/
+        add_method
+        add_method_by_coderef
+        detach
+    /;
+    for my $function ( @functions ) {
+        $class->add_method($caller,$function);
+    }
+}
 
 sub add_method {
     my ( $class, $target, $method_name ) = @_;
