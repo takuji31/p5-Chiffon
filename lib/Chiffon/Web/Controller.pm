@@ -55,7 +55,8 @@ sub call_trigger {
 
 sub redirect {
     my $self = shift;
-    return $self->res->redirect(@_);
+    $self->res->redirect(@_);
+    detach;
 }
 
 sub req           { shift->{req} }

@@ -42,4 +42,8 @@ sub add_method_by_coderef {
     }
 }
 
+sub detach {
+    die 'CHIFFON_DETACH';
+}
+
 1;

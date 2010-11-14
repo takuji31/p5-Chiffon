@@ -15,7 +15,7 @@ sub import {
         create_request create_response create_dispatcher
         container_class dispatcher_class plugins
         env req res dispatcher view
-        dispatch handle_response
+        dispatch handle_response is_detached
     /;
     for my $method (@methods) {
         $class->add_method( $caller, $method );
@@ -39,7 +39,9 @@ sub app {
         $self->create_response;
         $self->create_dispatcher;
 
-        return $self->dispatch;
+        $self->dispatch;
+
+        return $self->res->finalize;
     };
 }
 
@@ -95,36 +97,48 @@ sub dispatch {
     my $class = ref($self);
     my $controller_class = join '::',$class,'C',$dispatch_rule->{controller};
 
-    $controller_class->use or do{
-        warn "404 Controller not found $@";
-        return $self->handle_response('404 Not Fount',404);
+    eval {
+        $controller_class->use or do{
+            warn "404 Controller not found";
+            $self->handle_response('404 Not Found',404);
+            detach;
+        };
+
+        my $c = $controller_class->new(
+            {
+                req           => $self->req,
+                res           => $self->res,
+                view          => $self->view,
+                dispatch_rule => $dispatch_rule,
+                stash         => {},
+                config        => $self->container_class->get('conf') || {},
+            }
+        );
+        
+        my $action = 'do_'.$dispatch_rule->{action};
+        unless ( $c->can($action) ) {
+            $self->handle_response("Action $controller_class\::$action not found !",404);
+            return;
+        }
+
+        $c->call_trigger('before_action');
+        $c->$action();
+        $c->call_trigger('after_action');
+
+        $c->call_trigger('before_render');
+        $self->view->render($c);
+        $c->call_trigger('after_render');
     };
 
-    my $c = $controller_class->new(
-        {
-            req           => $self->req,
-            res           => $self->res,
-            view          => $self->view,
-            dispatch_rule => $dispatch_rule,
-            stash         => {},
-            config        => $self->container_class->get('conf') || {},
-        }
-    );
-    
-    my $action = $dispatch_rule->{action};
-    unless ( $c->can($action) ) {
-        return $self->handle_response("Action $controller_class\::$action not found !",404);
+    if ( $self->is_detached($@) ) {
+        return;
     }
-    $c->call_trigger('before_action');
-    $c->$action();
-    $c->call_trigger('after_action');
 
-    $c->call_trigger('before_render');
-    my $response = $self->view->render($c);
-    $c->call_trigger('after_render');
-
-    return $response->finalize;
-
+    if ( $@ ) {
+        warn $@;
+        $self->handle_response("Internal Server Error",500);
+        return;
+    }
 }
 
 sub handle_response {
@@ -137,7 +151,14 @@ sub handle_response {
     $res->status($status);
     $res->headers($header);
     $res->body($body);
-    return $res->finalize;
+}
+
+sub is_detached {
+    my ($self, $message) = @_;
+    unless ( $message ) {
+        return;
+    }
+    return $message =~ /CHIFFON_DETACH at/;
 }
 
 1;
