@@ -1,14 +1,14 @@
 =head1 NAME
 
-Chiffon -
+Chiffon - Web application framework for PSGI/Plack
 
 =head1 SYNOPSIS
 
-  use Chiffon;
+  chiffon.pl -p MyApp;
 
 =head1 DESCRIPTION
 
-Chiffon is
+Chiffon is web application framework for PSGI/Plack
 
 =head1 AUTHOR
 
