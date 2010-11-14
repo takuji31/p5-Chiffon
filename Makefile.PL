@@ -8,8 +8,9 @@ githubmeta;
 requires 'UNIVERSAL::can';
 requires 'UNIVERSAL::require';
 requires 'Carp';
-requires 'Exporter';
+requires 'Exporter::AutoClean';
 requires 'Router::Simple';
+requires 'Data::Section::Simple';
 
 tests 't/*.t';
 author_tests 'xt';
