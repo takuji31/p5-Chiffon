@@ -2,8 +2,9 @@
 use Chiffon::Bakery::Project;
 use opts;
 
-opts my $project => { isa => 'Str', required => 1 };
+opts my $project => { isa => 'Str', comment => 'Create project' };
 
 if($project) {
     Chiffon::Bakery::Project->bake($project);
+    exit;
 }
