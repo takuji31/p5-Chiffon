@@ -1,83 +1,15 @@
 package  Chiffon::Container;
 use Chiffon;
-use parent qw/Object::Container/;
-use Exporter::AutoClean;
+use Object::Container::Namespace -base;
 use Cwd qw/realpath/;
 use String::CamelCase qw/camelize/;
 use Path::Class qw/file dir/;
-
-sub import {
-    my $class  = shift;
-    my $caller = caller;
-
-    my ( $mode, $args ) = @_;
-    # use Chiffon::Container -base;
-    if( $mode && $mode eq '-base' ) {
-        # Nothing to do ?
-        $args ||= {};
-        {
-            no strict 'refs';
-            push @{"${caller}::ISA"}, $class;
-        }
-        my $r = $class->can('register');
-        my %exports = (
-            register => sub { $r->($caller, @_) },
-            preload  => sub {
-                $caller->instance->get($_) for @_;
-            },
-            preload_all_except => sub {
-                $caller->instance->load_all_except(@_);
-            },
-            preload_all => sub {
-                $caller->instance->load_all;
-            },
-        );
-
-        Exporter::AutoClean->export( $caller, %exports );
-        #register home and conf
-        $caller->initialize;
-    }
-    # use MyApp::Container;
-    # or
-    # use MyApp::Container qw/api/;
-    else {
-        # forked from Kamui::Container
-        my @export_names = @_;
-
-        my $self = $class->instance;
-
-        for my $name (@export_names) {
-
-            my $code = sub {
-                my $target = shift;
-                my $class_name = join '::', $class->base_name, camelize($name), camelize($target);
-                return $target ? $class->get($class_name) : $class;
-            };
-
-            {
-                no strict 'refs';
-                *{"${caller}::${name}"} = $code;
-            }
-        }
-
-        # export container
-        {
-            no strict 'refs';
-            *{"${caller}::container"} = sub {
-                my ($target) = @_;
-                return $target ? $class->get($target) : $class;
-            };
-        }
-    }
-
-}
 
 sub initialize {
     my $class = shift;
 
     # forked form Kamui::Container
-    &Object::Container::register(
-        $class,
+    $class->_register(
         home => sub{
             if( $ENV{CHIFFON_APP_HOME} ){
                 return dir($ENV{CHIFFON_APP_HOME}) if $ENV{CHIFFON_APP_HOME};
@@ -102,8 +34,7 @@ sub initialize {
             die 'Home directory not found. Please set $ENV{CHIFFON_APP_HOME}';
         }
     );
-    &Object::Container::register(
-        $class,
+    $class->_register(
         conf => sub {
             my $class = shift;
             my $home = $class->get('home');
