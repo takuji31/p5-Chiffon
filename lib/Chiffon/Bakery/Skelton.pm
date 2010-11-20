@@ -1,6 +1,6 @@
-package  Chiffon::Bakery::Project;
+package  Chiffon::Bakery::Skelton;
 use Chiffon;
-use parent qw/Chiffon::Bakery/;
+use parent qw/Chiffon::Bakery::Base/;
 use String::CamelCase qw/decamelize/;
 
 sub bake {

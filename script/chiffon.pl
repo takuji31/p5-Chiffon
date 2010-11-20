@@ -1,10 +1,7 @@
 #! /usr/bin/env perl
-use Chiffon::Bakery::Project;
-use opts;
+use Chiffon::Bakery::Skelton;
 
-opts my $project => { isa => 'Str', comment => 'Create project' };
-
-if($project) {
-    Chiffon::Bakery::Project->bake($project);
+if($ARGV[0]) {
+    Chiffon::Bakery::Skelton->bake($ARGV[0]);
     exit;
 }

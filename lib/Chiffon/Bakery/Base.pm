@@ -1,4 +1,4 @@
-package  Chiffon::Bakery;
+package  Chiffon::Bakery::Base;
 use Chiffon;
 use Text::Xslate;
 use Data::Section::Simple;
