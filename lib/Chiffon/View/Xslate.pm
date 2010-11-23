@@ -28,7 +28,8 @@ sub render {
         {
             %{$c->stash},
             req => $c->req,
-            res => $c->res
+            res => $c->res,
+            config => $c->config,
         }
     ) or die "Chiffon::View::Xslate error $@" ;
     my $res = $c->res;
