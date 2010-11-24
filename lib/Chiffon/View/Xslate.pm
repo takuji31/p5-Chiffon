@@ -32,6 +32,7 @@ sub render {
             config => $c->config,
         }
     ) or die "Chiffon::View::Xslate error $@" ;
+    utf8::encode($result);
     my $res = $c->res;
     $res->status('200');
     $res->body($result);
