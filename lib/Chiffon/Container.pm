@@ -39,7 +39,7 @@ sub initialize {
             my $class = shift;
             my $home = $class->get('home');
             # dev test product etc...
-            my $env  = $ENV{CHIFFON_APP_ENV} || 'product';
+            my $env  = $ENV{CHIFFON_APP_ENV} || 'production';
 
             my $conf = {};
             my $file = $home->file('config.pl');

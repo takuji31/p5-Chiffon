@@ -78,6 +78,9 @@ return +{
             },
         },
         datasource => +{
+            master => +{
+                dsn => 'dbi:mysql:db_name;user=username',
+            },
         },
         hostname => +{
         },
@@ -85,8 +88,18 @@ return +{
         },
     },
     dev     => {
+        datasource => +{
+            master => +{
+                dsn => 'dbi:mysql:db_name;user=username',
+            },
+        },
     },
-    product => {
+    production => {
+        datasource => +{
+            master => +{
+                dsn => 'dbi:mysql:db_name;user=username',
+            },
+        },
     },
 };
 
@@ -153,3 +166,4 @@ sub do_index {
 :around content -> {
     [% body || 'Hello Chiffon World!' %]
 :}
+
