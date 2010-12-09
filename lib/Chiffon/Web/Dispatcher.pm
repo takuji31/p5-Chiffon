@@ -42,12 +42,12 @@ sub match {
         }
         my $controller = $match->{controller};
         if($controller =~ /^[_0-9]/) {
-            return undef;
+            return;
         }
         $match->{controller} = camelize($controller);
         my $action     = $match->{action};
         if($action =~ /^[_0-9]/) {
-            return undef;
+            return;
         }
         $match->{template} = "$controller/$action";
     }
