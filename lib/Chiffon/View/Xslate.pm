@@ -27,11 +27,12 @@ sub render {
         $template_name,
         {
             %{$c->stash},
-            req => $c->req,
-            res => $c->res,
-            config => $c->config,
+            req     => $c->req,
+            res     => $c->res,
+            config  => $c->config,
+            session => $c->session,
         }
-    ) or die "Chiffon::View::Xslate error $@" ;
+    ) or die "Chiffon::View::Xslate error $@";
 
     if(utf8::is_utf8($result)) {
         utf8::encode($result);
