@@ -1,2 +1,7 @@
 [TestingAndDebugging::ProhibitNoStrict]
 allow=refs
+
+[-Subroutines::ProhibitSubroutinePrototypes]
+
+[TestingAndDebugging::RequireUseStrict]
+equivalent_modules = Chiffon
