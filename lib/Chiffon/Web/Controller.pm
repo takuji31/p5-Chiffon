@@ -10,7 +10,7 @@ sub import {
     my @methods = qw/
         new call_trigger
         req res request response view template
-        stash redirect config
+        stash redirect config session
     /;
     for my $method ( @methods ) {
         $class->add_method( $caller, $method );
@@ -67,5 +67,6 @@ sub config        { shift->{config} }
 sub view          { shift->{view} }
 sub stash :lvalue { shift->{stash} }
 sub template      { shift->{dispatch_rule}->{template} }
+sub session       { shift->{session} }
 
 1;

@@ -112,6 +112,7 @@ sub dispatch {
                 dispatch_rule => $dispatch_rule,
                 stash         => {},
                 config        => $self->container_class->get('conf') || {},
+                session       => $self->env->{'psgix.session'};
             }
         );
         
