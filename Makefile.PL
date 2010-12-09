@@ -13,9 +13,11 @@ requires 'Router::Simple';
 requires 'Data::Section::Simple';
 
 tests 't/*.t';
-author_tests 'xt';
+recursive_author_tests 'xt';
+install_script 'script/chiffon.pl';
 
 build_requires 'Test::More';
+auto_install;
 auto_set_repository;
 auto_include;
 WriteAll;
