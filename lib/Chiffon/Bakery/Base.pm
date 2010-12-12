@@ -59,6 +59,7 @@ builder {
            path => qr{^/(img/|js/|css/|favicon\.ico)},
            root => $home->file('assets/htdocs')->stringify;
    enable 'StackTrace';
+   enable 'Session';
    [% package %]::Web->app;
 };
 
