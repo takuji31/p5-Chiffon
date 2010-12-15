@@ -5,24 +5,6 @@ use Chiffon::Web::Request;
 use Chiffon::Web::Response;
 use UNIVERSAL::require;
 
-sub import {
-    my $class  = shift;
-    my $caller = caller;
-
-    #Export method
-    my @methods = qw/
-        new app
-        create_request create_response create_dispatcher
-        container_class dispatcher_class plugins
-        env req res dispatcher view
-        dispatch handle_response is_detached
-    /;
-    for my $method (@methods) {
-        $class->add_method( $caller, $method );
-    }
-
-}
-
 sub new {
     my ( $class, $args ) = @_;
     bless $args, $class;
