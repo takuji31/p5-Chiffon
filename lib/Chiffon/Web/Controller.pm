@@ -1,6 +1,6 @@
 package  Chiffon::Web::Controller;
 use Chiffon::Core;
-use Chiffon::Utils;
+
 use Carp();
 
 sub import {

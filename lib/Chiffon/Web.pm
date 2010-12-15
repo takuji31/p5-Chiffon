@@ -1,6 +1,6 @@
 package Chiffon::Web;
 use Chiffon::Core;
-use Chiffon::Utils;
+
 use Chiffon::Web::Request;
 use Chiffon::Web::Response;
 use UNIVERSAL::require;

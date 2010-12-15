@@ -1,7 +1,7 @@
 package  Chiffon::Web::Dispatcher::Simple;
 use Chiffon::Core;
 use Router::Simple;
-use Chiffon::Utils;
+
 
 sub import {
     my $class  = shift;
