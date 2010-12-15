@@ -90,10 +90,10 @@ sub dispatch {
             {
                 req           => $self->req,
                 res           => $self->res,
-                view          => $self->view,
+                view          => $self->view_class,
                 dispatch_rule => $dispatch_rule,
                 stash         => {},
-                config        => $self->container_class->get('conf') || {},
+                config        => $self->used_modules->{container}->get('conf') || {},
                 session       => $self->env->{'psgix.session'},
             }
         );
@@ -109,7 +109,7 @@ sub dispatch {
         $c->call_trigger('after_action');
 
         $c->call_trigger('before_render');
-        $self->view->render($c);
+        $self->view_class->render($c);
         $c->call_trigger('after_render');
     };
 
