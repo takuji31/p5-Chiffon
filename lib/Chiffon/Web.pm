@@ -5,9 +5,10 @@ use Class::Accessor::Lite;
 use parent qw/ Class::Data::Inheritable /;
 
 Class::Accessor::Lite->mk_accessors(qw/
+    dispatcher
+    env
     req
     res
-    dispatcher
     view
 /);
 
