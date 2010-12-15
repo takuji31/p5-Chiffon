@@ -1,5 +1,5 @@
 package  Chiffon::Web::Dispatcher::Simple;
-use Chiffon;
+use Chiffon::Core;
 use Router::Simple;
 use Chiffon::Utils;
 

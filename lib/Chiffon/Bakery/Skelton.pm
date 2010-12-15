@@ -1,5 +1,5 @@
 package  Chiffon::Bakery::Skelton;
-use Chiffon;
+use Chiffon::Core;
 use parent qw/Chiffon::Bakery::Base/;
 use String::CamelCase qw/decamelize/;
 

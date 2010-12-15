@@ -1,5 +1,5 @@
 package  Chiffon::Web::Dispatcher;
-use Chiffon;
+use Chiffon::Core;
 
 use parent qw/Chiffon::Web::Dispatcher::Simple/;
 use String::CamelCase qw/camelize/;

@@ -1,5 +1,5 @@
 package Chiffon::Web;
-use Chiffon;
+use Chiffon::Core;
 use Chiffon::Utils;
 use Chiffon::Web::Request;
 use Chiffon::Web::Response;
@@ -172,7 +172,7 @@ Chiffon::Web - Plack Web app handler for Chiffon
 =head1 SYNOPSIS
 
 package MyApp::Web;
-use Chiffon;
+use Chiffon::Core;
 use Chiffon::Web;
 use Chiffon::View::Xslate;
 use MyApp::Web::Dispatcher;

@@ -1,5 +1,5 @@
 package  Chiffon::Container;
-use Chiffon;
+use Chiffon::Core;
 use Object::Container::Namespace -base;
 use Cwd qw/realpath/;
 use String::CamelCase qw/camelize/;

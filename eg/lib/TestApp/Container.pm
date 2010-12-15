@@ -1,5 +1,5 @@
 package  TestApp::Container;
-use Chiffon;
+use Chiffon::Core;
 use Chiffon::Container -base;
 
 1;

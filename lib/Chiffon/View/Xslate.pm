@@ -1,5 +1,5 @@
 package  Chiffon::View::Xslate;
-use Chiffon;
+use Chiffon::Core;
 use Text::Xslate;
 
 use parent qw/Chiffon::View/;

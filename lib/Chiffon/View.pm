@@ -1,5 +1,5 @@
 package  Chiffon::View;
-use Chiffon;
+use Chiffon::Core;
 sub render { die 'Abstruct method render !' }
 
 1;

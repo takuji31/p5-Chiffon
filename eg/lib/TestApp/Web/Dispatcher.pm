@@ -1,5 +1,5 @@
 package  TestApp::Web::Dispatcher;
-use Chiffon;
+use Chiffon::Core;
 use Chiffon::Web::Dispatcher;
 
 all_action '/user', 'User',{};

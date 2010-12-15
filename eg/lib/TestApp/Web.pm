@@ -1,5 +1,5 @@
 package  TestApp::Web;
-use Chiffon;
+use Chiffon::Core;
 use Chiffon::Web;
 use Chiffon::View::Xslate;
 use TestApp::Web::Dispatcher;

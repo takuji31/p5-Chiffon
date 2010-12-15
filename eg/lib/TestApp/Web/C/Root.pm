@@ -1,5 +1,5 @@
 package  TestApp::Web::C::Root;
-use Chiffon;
+use Chiffon::Core;
 use Chiffon::Web::Controller;
 use TestApp::Container;
 

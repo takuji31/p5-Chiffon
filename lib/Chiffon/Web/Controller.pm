@@ -1,5 +1,5 @@
 package  Chiffon::Web::Controller;
-use Chiffon;
+use Chiffon::Core;
 use Chiffon::Utils;
 use Carp();
 

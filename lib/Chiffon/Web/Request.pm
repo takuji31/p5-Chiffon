@@ -1,5 +1,5 @@
 package  Chiffon::Web::Request;
-use Chiffon;
+use Chiffon::Core;
 
 use parent qw/Plack::Request/;
 

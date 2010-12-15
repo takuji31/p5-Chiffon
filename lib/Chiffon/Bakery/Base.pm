@@ -1,5 +1,5 @@
 package  Chiffon::Bakery::Base;
-use Chiffon;
+use Chiffon::Core;
 use Text::Xslate;
 use Data::Section::Simple;
 use Path::Class;
@@ -64,7 +64,7 @@ builder {
 };
 
 @@ config.pl.tx
-use Chiffon;
+use Chiffon::Core;
 use [% package %]::Container;
 use Path::Class;
 
@@ -107,21 +107,21 @@ return +{
 
 @@ Root.tx
 package [% package %];
-use Chiffon;
+use Chiffon::Core;
 our $VERSION = '0.01';
 
 1;
 
 @@ Container.tx
 package  [% package %]::Container;
-use Chiffon;
+use Chiffon::Core;
 use Chiffon::Container -base;
 
 1;
 
 @@ Web.tx
 package  [% package %]::Web;
-use Chiffon;
+use Chiffon::Core;
 use Chiffon::Web;
 use Chiffon::View::Xslate;
 use [% package %]::Web::Dispatcher;
@@ -131,14 +131,14 @@ use [% package %]::Container;
 
 @@ Dispatcher.tx
 package  [% package %]::Web::Dispatcher;
-use Chiffon;
+use Chiffon::Core;
 use Chiffon::Web::Dispatcher;
 
 1;
 
 @@ Controller.tx
 package  [% package %]::Web::C::Root;
-use Chiffon;
+use Chiffon::Core;
 use Chiffon::Web::Controller;
 use [% package %]::Container;
 
