@@ -167,24 +167,25 @@ __END__
 
 =head1 NAME
 
-Chiffon::Handler - Plack app handler for Chiffon
+Chiffon::Web - Plack Web app handler for Chiffon
 
 =head1 SYNOPSIS
 
-package MyApp::Handler;
-use Chiffon::Handler;
-
-dispatcher 'MyApp::Dispatcher';
-view       'Chiffon::View::Xslate';
+package MyApp::Web;
+use Chiffon;
+use Chiffon::Web;
+use Chiffon::View::Xslate;
+use MyApp::Web::Dispatcher;
+use MyApp::Container;
 
 
 app.psgi
 
-use MyApp::Handler;
+use MyApp::Web;
 use Plack::Builder;
 
 builder {
-    MyApp::Handler->to_app;
+    MyApp::Web->app;
 };
 
 =head1 DESCRIPTION
