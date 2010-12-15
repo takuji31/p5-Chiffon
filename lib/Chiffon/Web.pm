@@ -7,9 +7,8 @@ use parent qw/ Class::Data::Inheritable /;
 Class::Accessor::Lite->mk_accessors(qw/
     dispatcher
     env
-    req
-    res
-    view
+    request
+    response
 /);
 
 __PACKAGE__->mk_classdata(
@@ -65,6 +64,10 @@ sub create_dispatcher {
 
 #TODO ViewもInstance化したほうがよい？
 sub view_class { shift->used_modules->{view} }
+
+*req = \&request;
+*res = \&response;
+
 
 sub dispatch {
     my $self = shift;
