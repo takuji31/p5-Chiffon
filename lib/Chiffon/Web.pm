@@ -46,16 +46,20 @@ sub app {
 
 sub create_request {
     my $self     = shift;
-    $self->{req} = Chiffon::Web::Request->new( $self->env );
+    my $request = $self->used_modules->{request}->new({ env => $self->env })
+        or Carp::croak("Can't load request class! cause : $@");
+    $self->{request} = $request;
 }
 sub create_response {
     my $self     = shift;
-    $self->{res} = Chiffon::Web::Response->new;
+    my $response = $self->used_modules->{response}->new({ env => $self->env })
+        or Carp::croak("Can't load response class! cause : $@");
+    $self->{response} = $response;
 }
 sub create_dispatcher {
     my $self       = shift;
-    my $dispatcher = $self->dispatcher_class->new({ env => $self->env })
-        or Carp::croak('Dispatcher not found!');
+    my $dispatcher = $self->used_modules->{dispatcher}->new({ env => $self->env })
+        or Carp::croak("Can't load dispatcher class! cause : $@");
     $self->{dispatcher} = $dispatcher;
 }
 
