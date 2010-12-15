@@ -62,6 +62,12 @@ sub base_name {
     $base_name;
 }
 
+sub sub_class {
+    my $class = shift;
+    my $base_name = $class->base_name;
+    return join '::',$base_name,@_;
+}
+
 sub load_class {
     my ( $class, $load_class ) = @_;
     $load_class->require or Carp::croak $@;
