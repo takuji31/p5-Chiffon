@@ -1,9 +1,25 @@
 package Chiffon::Web;
 use Chiffon::Core;
-
-use Chiffon::Web::Request;
-use Chiffon::Web::Response;
 use UNIVERSAL::require;
+use Class::Accessor::Lite;
+use parent qw/ Class::Data::Inheritable /;
+
+Class::Accessor::Lite->mk_accessors(qw/
+    req
+    res
+    dispatcher
+    view
+/);
+
+__PACKAGE__->mk_classdata(
+    used_modules => {
+        request    => 'Chiffon::Web::Request',
+        response   => 'Chiffon::Web::Response',
+        dispatcher => '',
+        view       => 'Chiffon::View::Xslate',
+        container  => '', 
+    },
+);
 
 sub new {
     my ( $class, $args ) = @_;
@@ -27,25 +43,6 @@ sub app {
     };
 }
 
-#class name methods
-
-sub dispatcher_class {
-    my $self = shift;
-    my $class = ref($self) || $self;
-    return "$class\::Dispatcher";
-}
-
-sub plugins { [] }
-
-sub container_class {
-    my $self = shift;
-    my $class = ref($self) || $self;
-    my $basename = $class->base_name;
-    return "$basename\::Container";
-}
-
-#Instance methods
-
 sub create_request {
     my $self     = shift;
     $self->{req} = Chiffon::Web::Request->new( $self->env );
@@ -61,11 +58,8 @@ sub create_dispatcher {
     $self->{dispatcher} = $dispatcher;
 }
 
-sub env { shift->{env} }
-sub req { shift->{req} }
-sub res { shift->{res} }
-sub dispatcher { shift->{dispatcher} }
-sub view { 'Chiffon::View::Xslate' }
+#TODO ViewもInstance化したほうがよい？
+sub view_class { shift->used_modules->{view} }
 
 sub dispatch {
     my $self = shift;
