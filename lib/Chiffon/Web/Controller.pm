@@ -21,7 +21,7 @@ sub import {
         after_action  =>[],
         after_render  =>[],
     };
-    $class->add_method_by_coderef( $caller, 'triggers', sub{ $t } );
+    add_method_by_coderef( $caller, 'triggers', sub{ $t } );
 }
 
 sub new {
