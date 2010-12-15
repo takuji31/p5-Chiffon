@@ -1,5 +1,7 @@
 package Chiffon::Core;
-use Chiffon;
+use strict;
+use warnings;
+use utf8;
 use Carp ();
 use UNIVERSAL::can;
 use UNIVERSAL::require;
@@ -7,6 +9,8 @@ use UNIVERSAL::require;
 sub import {
     strict->import;
     warnings->import;
+    utf8->import;
+
     my $class  = shift;
     my $caller = caller;
     my @functions = qw/
