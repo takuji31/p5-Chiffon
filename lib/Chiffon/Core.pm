@@ -1,4 +1,4 @@
-package Chiffon::Utils;
+package Chiffon::Core;
 use Chiffon;
 use Carp ();
 use UNIVERSAL::can;
