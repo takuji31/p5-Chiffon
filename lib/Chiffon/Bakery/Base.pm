@@ -122,10 +122,10 @@ use Chiffon::Container -base;
 @@ Web.tx
 package  [% package %]::Web;
 use Chiffon::Core;
-use Chiffon::Web;
 use Chiffon::View::Xslate;
 use [% package %]::Web::Dispatcher;
 use [% package %]::Container;
+use parent qw/ Chiffon::Web /;
 
 1;
 
@@ -144,7 +144,7 @@ use [% package %]::Container;
 
 sub do_index {
     my $self = shift;
-    $self->stash->{title} = "Hello Chiffon World!";
+    $self->stash->{body} = "Hello Chiffon World!";
 }
 
 1;
