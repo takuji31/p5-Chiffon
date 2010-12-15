@@ -81,8 +81,9 @@ sub dispatch {
 
     eval {
         $controller_class->use or do{
-            warn "404 Controller not found";
-            $self->handle_response('404 Not Found',404);
+            #TODO デバッグモードの時だけStackTrace的なモノを出力
+            warn "Can't load Controller $controller_class cause : $@";
+            $self->handle_response($@,404);
             detach;
         };
 
