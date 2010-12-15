@@ -13,7 +13,7 @@ sub import {
     }
 
     my $rule = [];
-    $class->add_method_by_coderef($caller,'rule',sub{$rule});
+    add_method_by_coderef($caller,'rule',sub{$rule});
 }
 
 sub new {
