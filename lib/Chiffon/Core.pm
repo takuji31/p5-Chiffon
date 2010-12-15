@@ -2,14 +2,19 @@ package Chiffon::Core;
 use Chiffon;
 use Carp ();
 use UNIVERSAL::can;
+use UNIVERSAL::require;
 
 sub import {
+    strict->import;
+    warnings->import;
     my $class  = shift;
     my $caller = caller;
     my @functions = qw/
         add_method
         add_method_by_coderef
         detach
+        base_name
+        load_class
     /;
     for my $function ( @functions ) {
         $class->add_method($caller,$function);
@@ -44,6 +49,18 @@ sub add_method_by_coderef {
 
 sub detach {
     die 'CHIFFON_DETACH';
+}
+
+sub base_name {
+    my $class = shift;
+    $class = ref $class unless $class;
+    ( my $base_name = $class ) =~ s/(::.+)?$//g;
+    $base_name;
+}
+
+sub load_class {
+    my ( $class, $load_class ) = @_;
+    $load_class->require or Carp::croak $@;
 }
 
 1;

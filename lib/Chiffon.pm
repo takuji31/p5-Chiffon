@@ -1,33 +1,8 @@
 package Chiffon;
 use strict;
 use warnings;
-use UNIVERSAL::require;
 
 our $VERSION = '0.01';
-
-sub import {
-    strict->import;
-    warnings->import;
-
-    my $caller    = caller(0);
-    my @functions = qw/ base_name load_class /;
-    for my $function (@functions) {
-        no strict 'refs';
-        *{"$caller\::$function"} = \&$function;
-    }
-}
-
-sub base_name {
-    my $class = shift;
-    $class = ref $class unless $class;
-    ( my $base_name = $class ) =~ s/(::.+)?$//g;
-    $base_name;
-}
-
-sub load_class {
-    my ( $class, $load_class ) = @_;
-    $load_class->require or Carp::croak $@;
-}
 
 1;
 __END__
