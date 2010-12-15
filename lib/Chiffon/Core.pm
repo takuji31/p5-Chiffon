@@ -34,11 +34,11 @@ sub add_method {
     unless ($code) {
         Carp::croak("Method $class\::$method_name does not exists!");
     }
-    $class->add_method_by_coderef( $target, $method_name, $code );
+    add_method_by_coderef( $target, $method_name, $code );
 }
 
 sub add_method_by_coderef {
-    my ( $class, $target, $method_name, $code ) = @_;
+    my ( $target, $method_name, $code ) = @_;
     if ( ref($target) ) {
         $target = ref($target);
     }
