@@ -2,14 +2,16 @@ package  Chiffon::Web::Dispatcher::Simple;
 use Chiffon::Core;
 use Router::Simple;
 
+use parent qw/ Chiffon::Web::Dispatcher /;
+
 
 sub import {
     my $class  = shift;
     my $caller = caller;
 
-    my @functions = qw/ new _route _all_action _create_instance _create_router _set_rule match /;
-    for my $function (@functions) {
-        $class->add_method($caller,$function);
+    {
+        no strict 'refs';
+        push *{"$caller\::ISA"}, $class;
     }
 
     my $rule = [];
@@ -60,12 +62,6 @@ sub _all_action {
     my $controller = shift;
     my $params     = shift;
     push @{$class->rule},["$pattern/:action",{ controller => $controller, %$params }];
-}
-
-sub match {
-    my ( $self, $env ) = @_;
-    $env ||= $self->{env};
-    return $self->{router}->match($env);
 }
 
 1;

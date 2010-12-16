@@ -22,35 +22,4 @@ sub new {
     }
     return $self;
 }
-
-sub match {
-    my $self = shift;
-    my $match = $self->SUPER::match(@_);
-    if ( $match ) {
-        if( $match->{with_param} ) {
-            $match->{controller} = shift @{$match->{splat}};
-            $match->{action} = shift @{$match->{splat}};
-            my $params_str = shift @{$match->{splat}};
-            my @params = split '/',$params_str;
-            # hoge:fuga => { hoge => fuga }
-            my $parsed_params = [];
-            for my $param (@params){
-                $param = ( $param =~ /([^:]+)\:(.+)/ ) ? +{ $1 => $2 } : $param;
-                push @$parsed_params,$param;
-            }
-            $match->{splat} = $parsed_params;
-        }
-        my $controller = $match->{controller};
-        if($controller =~ /^[_0-9]/) {
-            return;
-        }
-        $match->{controller} = camelize($controller);
-        my $action     = $match->{action};
-        if($action =~ /^[_0-9]/) {
-            return;
-        }
-        $match->{template} = "$controller/$action";
-    }
-    return $match;
-
-}
+1;
