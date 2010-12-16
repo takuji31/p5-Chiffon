@@ -1,4 +1,4 @@
-package  Chiffon::Web::Dispatcher;
+package  Chiffon::Web::Dispatcher::RailsLike;
 use Chiffon::Core;
 
 use parent qw/Chiffon::Web::Dispatcher::Simple/;
