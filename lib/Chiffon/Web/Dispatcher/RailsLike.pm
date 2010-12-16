@@ -2,7 +2,6 @@ package  Chiffon::Web::Dispatcher::RailsLike;
 use Chiffon::Core;
 
 use parent qw/Chiffon::Web::Dispatcher::Simple/;
-use String::CamelCase qw/camelize/;
 
 our $default_rules = [
     ['root_index','/',{ controller => 'root', action => 'index'}],

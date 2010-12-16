@@ -1,5 +1,6 @@
 package  Chiffon::Web::Dispatcher;
 use Chiffon::Core;
+use String::CamelCase qw/camelize/;
 
 sub match {
     my ( $self, $env ) = @_;
