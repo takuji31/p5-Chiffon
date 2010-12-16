@@ -7,13 +7,15 @@ sub import {
     my $class  = shift;
     my $caller = caller;
 
-    my @functions = qw/ new route all_action _create_instance _create_router _set_rule match /;
+    my @functions = qw/ new _route _all_action _create_instance _create_router _set_rule match /;
     for my $function (@functions) {
         $class->add_method($caller,$function);
     }
 
     my $rule = [];
     add_method_by_coderef($caller,'rule',sub{$rule});
+    add_method_by_coderef($caller,'route',sub{ _route($caller,@_) });
+    add_method_by_coderef($caller,'all_action',sub{ _all_action($caller,@_) });
 }
 
 sub new {
@@ -43,19 +45,21 @@ sub _set_rule {
     }
 }
 
-sub route {
+sub _route {
+    my $class      = shift;
     my $pattern    = shift;
     my $controller = shift;
     my $action     = shift;
     my %params     = %_;
-    push @{caller->rule},[$pattern,{ controller => $controller, action => $action, %params }];
+    push @{$class->rule},[$pattern,{ controller => $controller, action => $action, %params }];
 }
 
-sub all_action {
+sub _all_action {
+    my $class      = shift;
     my $pattern    = shift;
     my $controller = shift;
     my $params     = shift;
-    push @{caller->rule},["$pattern/:action",{ controller => $controller, %$params }];
+    push @{$class->rule},["$pattern/:action",{ controller => $controller, %$params }];
 }
 
 sub match {
