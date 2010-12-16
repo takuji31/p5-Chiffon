@@ -19,6 +19,11 @@ __PACKAGE__->mk_classdata(
         container  => '', 
     },
 );
+__PACKAGE__->mk_classdata(
+    default_response_header => [
+        ['Content-Type' => 'text/html;charset=UTF-8'],
+    ],
+);
 
 sub new {
     my ( $class, $args ) = @_;
@@ -132,7 +137,7 @@ sub handle_response {
     my ( $self, $body, $status, $header ) = @_;
 
     $status ||= 200;
-    $header ||= [ 'Content-Type' => 'text/html;charset=UTF-8' ];
+    $header ||= $self->default_response_header;
 
     my $res = $self->res;
     $res->status($status);
