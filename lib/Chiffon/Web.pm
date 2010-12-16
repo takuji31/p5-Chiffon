@@ -63,6 +63,7 @@ sub create_dispatcher {
 
 #TODO ViewもInstance化したほうがよい？
 sub view_class { shift->used_modules->{view} }
+sub container_class { shift->used_modules->{container} }
 
 *req = \&request;
 *res = \&response;
@@ -95,7 +96,7 @@ sub dispatch {
                 view          => $self->view_class,
                 dispatch_rule => $dispatch_rule,
                 stash         => {},
-                config        => $self->used_modules->{container}->get('conf') || {},
+                config        => $self->container_class->get('conf') || {},
                 session       => $self->env->{'psgix.session'},
             }
         );
