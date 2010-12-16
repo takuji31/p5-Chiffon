@@ -1,6 +1,7 @@
 package  Chiffon::Web::Dispatcher::Simple;
 use Chiffon::Core;
 use Router::Simple;
+use String::CamelCase qw/camelize/;
 
 use parent qw/ Chiffon::Web::Dispatcher /;
 
