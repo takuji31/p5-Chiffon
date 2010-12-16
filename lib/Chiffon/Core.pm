@@ -58,7 +58,7 @@ sub detach {
 sub base_name {
     my $class = shift;
     $class = ref $class unless $class;
-    ( my $base_name = $class ) =~ s/(::.+)?$//g;
+    ( my $base_name = $class ) =~ s/(::[^:]+)?$//g;
     $base_name;
 }
 
