@@ -11,7 +11,7 @@ sub import {
 
     {
         no strict 'refs';
-        push *{"$caller\::ISA"}, $class;
+        push @{"$caller\::ISA"}, $class;
     }
 
     my $rule = [];
