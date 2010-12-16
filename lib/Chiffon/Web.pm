@@ -150,7 +150,7 @@ sub is_detached {
     unless ( $message ) {
         return;
     }
-    return $message =~ /CHIFFON_DETACH at/;
+    return $message =~ /CHIFFON_DETACH/;
 }
 
 1;
