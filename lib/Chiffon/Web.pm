@@ -21,7 +21,7 @@ __PACKAGE__->mk_classdata(
 );
 __PACKAGE__->mk_classdata(
     default_response_header => [
-        ['Content-Type' => 'text/html;charset=UTF-8'],
+        'Content-Type' => 'text/html;charset=UTF-8',
     ],
 );
 
