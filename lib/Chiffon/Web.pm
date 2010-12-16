@@ -75,7 +75,8 @@ sub dispatch {
     my $dispatch_rule = $self->dispatcher->match;
     # StaticはMiddlewareかサーバー側でうまいことやってる前提
     unless ( $dispatch_rule ) {
-        return $self->handle_response('404 Not Found',404);
+        $self->handle_response('404 Not Found',404);
+        detach;
     }
 
     my $class = ref($self);
@@ -104,7 +105,7 @@ sub dispatch {
         my $action = 'do_'.$dispatch_rule->{action};
         unless ( $c->can($action) ) {
             $self->handle_response("Action $controller_class\::$action not found !",404);
-            return;
+            detach;
         }
 
         $c->call_trigger('before_action');
