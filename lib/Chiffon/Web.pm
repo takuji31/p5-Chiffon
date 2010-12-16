@@ -1,6 +1,5 @@
 package Chiffon::Web;
 use Chiffon::Core;
-use UNIVERSAL::require;
 use Class::Accessor::Lite;
 use parent qw/ Class::Data::Inheritable /;
 
