@@ -109,6 +109,7 @@ sub dispatch {
         
         my $action = 'do_'.$dispatch_rule->{action};
         unless ( $c->can($action) ) {
+            warn "Action $controller_class\::$action not found!";
             $self->handle_response("Action $controller_class\::$action not found !",404);
             detach;
         }
