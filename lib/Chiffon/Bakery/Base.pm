@@ -74,8 +74,8 @@ return +{
         app_name => '[% app_name %]',
         view => {
             'Chiffon::View::Xslate' => +{
-                path => $home->file('assets/template')->stringify,
-                tterse => 0,
+                path   => $home->file('assets/template')->stringify,
+                syntax => 'Kolon'
             },
         },
         datasource => +{
