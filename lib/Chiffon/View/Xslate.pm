@@ -12,17 +12,16 @@ sub render {
     my $conf          = $c->config->{view}->{$class} || {};
     my $app_name      = $c->config->{app_name} || 'chiffon_app';
     my $xslate_config = {
-        path      => delete $conf->{path},
         cache     => 1,
-        cache_dir => '/tmp/' . $app_name . '/',
-        syntax    => delete $conf->{tterse} ? 'TTerse' : 'Kolon',
+        cache_dir => '/tmp/',
+        syntax    => 'Kolon',
         type      => 'html',
         suffix    => '.html',
         %$conf,
     };
     $xslate ||= Text::Xslate->new(%$xslate_config);
     my $template_name = $c->template || 'default';
-    $template_name .= ($conf->{suffix} || '.html');
+    $template_name .= $xslate_config->{suffix};
     my $result = $xslate->render(
         $template_name,
         {
