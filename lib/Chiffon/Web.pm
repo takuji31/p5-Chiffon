@@ -6,8 +6,8 @@ use parent qw/ Class::Data::Inheritable /;
 Class::Accessor::Lite->mk_accessors(qw/
     dispatcher
     env
-    request
-    response
+    req
+    res
 /);
 
 __PACKAGE__->mk_classdata(
@@ -51,13 +51,13 @@ sub create_request {
     my $self     = shift;
     my $request = $self->used_modules->{request}->new({ env => $self->env })
         or Carp::croak("Can't load request class! cause : $@");
-    $self->{request} = $request;
+    $self->{req} = $request;
 }
 sub create_response {
     my $self     = shift;
     my $response = $self->used_modules->{response}->new({ env => $self->env })
         or Carp::croak("Can't load response class! cause : $@");
-    $self->{response} = $response;
+    $self->{res} = $response;
 }
 sub create_dispatcher {
     my $self       = shift;
@@ -69,9 +69,6 @@ sub create_dispatcher {
 #TODO ViewもInstance化したほうがよい？
 sub view_class { shift->used_modules->{view} }
 sub container_class { shift->used_modules->{container} }
-
-*req = \&request;
-*res = \&response;
 
 
 sub dispatch {
