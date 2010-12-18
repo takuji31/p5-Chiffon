@@ -75,7 +75,11 @@ return +{
         view => {
             'Chiffon::View::Xslate' => +{
                 path   => $home->file('assets/template')->stringify,
-                syntax => 'Kolon'
+                cache     => 1,
+                cache_dir => '/tmp/[% app_name %]',
+                syntax    => 'Kolon',
+                type      => 'html',
+                suffix    => '.html',
             },
         },
         datasource => +{
