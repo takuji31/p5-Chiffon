@@ -2,13 +2,14 @@ package Chiffon::Web;
 use Chiffon::Core;
 use Class::Accessor::Lite (
     new => 0,
-    ro => [ qw/ dispatcher env req res/ ],
+    ro => [ qw/ dispatcher env req res session / ],
 );
 use parent qw/ Class::Data::Inheritable /;
 
 
 __PACKAGE__->mk_classdata(
     used_modules => {
+        context    => '',
         request    => 'Chiffon::Web::Request',
         response   => 'Chiffon::Web::Response',
         dispatcher => '',
@@ -66,6 +67,7 @@ sub create_dispatcher {
 #TODO ViewもInstance化したほうがよい？
 sub view_class { shift->used_modules->{view} }
 sub container_class { shift->used_modules->{container} }
+sub context_class { shift->used_modules->{context} }
 
 
 sub dispatch {
@@ -79,42 +81,41 @@ sub dispatch {
     }
 
     my $class = ref($self);
-    my $controller_class = join '::',$class,'C',$dispatch_rule->{controller};
+    my $controller = join '::',$class,'C',$dispatch_rule->{controller};
 
     eval {
-        $controller_class->use or do{
+        $controller->use or do{
             #TODO デバッグモードの時だけStackTrace的なモノを出力
-            warn "Can't load Controller $controller_class cause : $@";
+            warn "Can't load Controller $controller cause : $@";
             $self->handle_response($@,404);
             detach;
         };
 
-        my $c = $controller_class->new(
+        my $context = $self->context_class->new(
             {
+                env           => $self->env,
                 req           => $self->req,
                 res           => $self->res,
                 view          => $self->view_class,
                 dispatch_rule => $dispatch_rule,
                 stash         => {},
                 config        => $self->container_class->get('conf') || {},
-                session       => $self->env->{'psgix.session'},
             }
         );
-        
         my $action = 'do_'.$dispatch_rule->{action};
-        unless ( $c->can($action) ) {
-            warn "Action $controller_class\::$action not found!";
-            $self->handle_response("Action $controller_class\::$action not found !",404);
+        unless ( $controller->can($action) ) {
+            warn "Action $controller\::$action not found!";
+            $self->handle_response("Action $controller\::$action not found !",404);
             detach;
         }
 
-        $c->call_trigger('before_action');
-        $c->$action();
-        $c->call_trigger('after_action');
+        $controller->call_trigger('before_action');
+        $controller->$action($context);
+        $controller->call_trigger('after_action');
 
-        $c->call_trigger('before_render');
-        $self->view_class->render($c);
-        $c->call_trigger('after_render');
+        $controller->call_trigger('before_render');
+        $self->view_class->render($context);
+        $controller->call_trigger('after_render');
     };
 
     if ( $self->is_detached($@) ) {
