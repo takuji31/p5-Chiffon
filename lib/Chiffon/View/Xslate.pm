@@ -4,8 +4,6 @@ use Text::Xslate;
 
 use parent qw/Chiffon::View/;
 
-my $xslate;
-
 sub render {
     my ( $class, $c ) = @_;
 
@@ -19,7 +17,7 @@ sub render {
         suffix    => '.html',
         %$conf,
     };
-    $xslate ||= Text::Xslate->new(%$xslate_config);
+    my $xslate = Text::Xslate->new(%$xslate_config);
     my $template_name = $c->template || 'default';
     $template_name .= $xslate_config->{suffix};
     my $result = $xslate->render(
