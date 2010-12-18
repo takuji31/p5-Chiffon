@@ -55,7 +55,7 @@ use Plack::Builder;
 
 my $home = container('home');
 builder {
-   enable 'Plack::Middleware::Static',
+   enable 'Static',
            path => qr{^/(img/|js/|css/|favicon\.ico)},
            root => $home->file('assets/htdocs')->stringify;
    enable 'StackTrace';
@@ -84,7 +84,7 @@ return +{
         },
         datasource => +{
             master => +{
-                dsn => 'dbi:mysql:db_name;user=username',
+                dsn => 'dbi:mysql:[% app_name %];user=root',
             },
         },
         hostname => +{
@@ -95,14 +95,14 @@ return +{
     dev     => {
         datasource => +{
             master => +{
-                dsn => 'dbi:mysql:db_name;user=username',
+                dsn => 'dbi:mysql:[% app_name %];user=root',
             },
         },
     },
     production => {
         datasource => +{
             master => +{
-                dsn => 'dbi:mysql:db_name;user=username',
+                dsn => 'dbi:mysql:[% app_name %];user=root',
             },
         },
     },
@@ -131,12 +131,45 @@ use [% package %]::Web::Dispatcher;
 use [% package %]::Container;
 use parent qw/ Chiffon::Web /;
 
+__PACKAGE__->used_modules({
+    container  => '[% package %]::Container',
+    context    => '[% package %]::Web::Context',
+    request    => '[% package %]::Web::Request',
+    response   => '[% package %]::Web::Response',
+    dispatcher => '[% package %]::Web::Dispatcher',
+    view       => 'Chiffon::View::Xslate',
+});
+
+1;
+
+@@ Context.tx
+package  [% package %]::Web::Context;
+use Chiffon::Core;
+use [% package %]::Container;
+use parent qw/ Chiffon::Web::Context /;
+
 1;
 
 @@ Dispatcher.tx
 package  [% package %]::Web::Dispatcher;
 use Chiffon::Core;
-use Chiffon::Web::Dispatcher;
+use Chiffon::Web::Dispatcher::RailsLike;
+
+1;
+
+@@ Request.tx
+package  [% package %]::Web::Request;
+use Chiffon::Core;
+use [% package %]::Container;
+use parent qw/ Chiffon::Web::Request /;
+
+1;
+
+@@ Response.tx
+package  [% package %]::Web::Response;
+use Chiffon::Core;
+use [% package %]::Container;
+use parent qw/ Chiffon::Web::Response /;
 
 1;
 
@@ -147,8 +180,8 @@ use Chiffon::Web::Controller;
 use [% package %]::Container;
 
 sub do_index {
-    my $self = shift;
-    $self->stash->{body} = "Hello Chiffon World!";
+    my ( $class, $c ) = @_;
+    $c->stash->{body} = "Hello Chiffon World!";
 }
 
 1;
