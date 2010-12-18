@@ -1,14 +1,11 @@
 package Chiffon::Web;
 use Chiffon::Core;
-use Class::Accessor::Lite;
+use Class::Accessor::Lite (
+    new => 0,
+    ro => [ qw/ dispatcher env req res/ ],
+);
 use parent qw/ Class::Data::Inheritable /;
 
-Class::Accessor::Lite->mk_accessors(qw/
-    dispatcher
-    env
-    req
-    res
-/);
 
 __PACKAGE__->mk_classdata(
     used_modules => {
