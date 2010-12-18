@@ -11,6 +11,9 @@ requires 'Carp';
 requires 'Exporter::AutoClean';
 requires 'Router::Simple';
 requires 'Data::Section::Simple';
+requires 'Plack::Middleware::Session';
+requires 'Text::Xslate';
+requires 'Class::Accessor::Lite';
 
 tests 't/*.t';
 recursive_author_tests 'xt';
