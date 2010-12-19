@@ -1,5 +1,6 @@
 package  Chiffon::Web::Context;
 use Chiffon::Core;
+use Plack::Session;
 
 use Class::Accessor::Lite (
     new => 1,
