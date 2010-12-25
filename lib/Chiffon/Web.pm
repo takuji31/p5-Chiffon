@@ -47,13 +47,13 @@ sub app {
 
 sub create_request {
     my $self     = shift;
-    my $request = $self->used_modules->{request}->new({ env => $self->env })
+    my $request = $self->used_modules->{request}->new($self->env)
         or Carp::croak("Can't load request class! cause : $@");
     $self->{req} = $request;
 }
 sub create_response {
     my $self     = shift;
-    my $response = $self->used_modules->{response}->new({ env => $self->env })
+    my $response = $self->used_modules->{response}->new
         or Carp::croak("Can't load response class! cause : $@");
     $self->{res} = $response;
 }
