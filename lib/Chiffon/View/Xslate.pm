@@ -28,6 +28,7 @@ sub render {
             res     => $c->res,
             config  => $c->config,
             session => $c->session,
+            c       => $c,
         }
     ) or die "Chiffon::View::Xslate error $@";
 
