@@ -14,6 +14,7 @@ requires 'Data::Section::Simple';
 requires 'Plack::Middleware::Session';
 requires 'Text::Xslate';
 requires 'Class::Accessor::Lite';
+requires 'Object::Container::Namespace';
 
 tests 't/*.t';
 recursive_author_tests 'xt';
