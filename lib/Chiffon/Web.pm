@@ -2,7 +2,7 @@ package Chiffon::Web;
 use Chiffon::Core;
 use Class::Accessor::Lite (
     new => 0,
-    ro => [ qw/ dispatcher env req res session / ],
+    ro => [ qw/ context dispatcher env req res session / ],
 );
 use parent qw/ Class::Data::Inheritable /;
 
@@ -38,13 +38,28 @@ sub app {
         $self->create_request;
         $self->create_response;
         $self->create_dispatcher;
+        my $context = $self->create_context;
 
-        $self->dispatch;
+        $self->dispatch($context);
 
-        return $self->res->finalize;
+        return $self->context->finalize;
     };
 }
 
+sub create_context {
+    my $self     = shift;
+    my $context = $self->used_modules->{context}->new(
+        {
+            env           => $self->env,
+            req           => $self->req,
+            res           => $self->res,
+            view          => $self->view_class,
+            stash         => {},
+            config        => $self->container_class->get('conf') || {},
+        }
+    ) or Carp::croak("Can't load request class! cause : $@");
+    $self->{context} = $context;
+}
 sub create_request {
     my $self     = shift;
     my $request = $self->used_modules->{request}->new($self->env)
@@ -71,7 +86,7 @@ sub context_class { shift->used_modules->{context} }
 
 
 sub dispatch {
-    my $self = shift;
+    my ($self, $context) = @_;
 
     my $dispatch_rule = $self->dispatcher->match;
     # StaticはMiddlewareかサーバー側でうまいことやってる前提
@@ -79,6 +94,8 @@ sub dispatch {
         $self->handle_response('404 Not Found',404);
         detach;
     }
+
+    $context->dispatch_rule($dispatch_rule);
 
     my $class = ref($self);
     my $controller = join '::',$class,'C',$dispatch_rule->{controller};
@@ -90,18 +107,6 @@ sub dispatch {
             $self->handle_response($@,404);
             detach;
         };
-
-        my $context = $self->context_class->new(
-            {
-                env           => $self->env,
-                req           => $self->req,
-                res           => $self->res,
-                view          => $self->view_class,
-                dispatch_rule => $dispatch_rule,
-                stash         => {},
-                config        => $self->container_class->get('conf') || {},
-            }
-        );
 
         $context->initialize;
 
@@ -130,6 +135,8 @@ sub dispatch {
         $self->handle_response("Internal Server Error",500);
         return;
     }
+
+    $context->finalize;
 }
 
 sub handle_response {

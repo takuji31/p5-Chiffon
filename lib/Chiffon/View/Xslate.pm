@@ -1,6 +1,7 @@
 package  Chiffon::View::Xslate;
 use Chiffon::Core;
-use Text::Xslate;
+use Text::Xslate qw/html_builder/;
+use HTML::FillInForm::Lite qw/fillinform/;
 
 use parent qw/Chiffon::View/;
 
@@ -16,6 +17,7 @@ sub render {
         type      => 'html',
         suffix    => '.html',
         %$conf,
+        function => { fillinform => html_builder(\&fillinform) },
     };
     my $xslate = Text::Xslate->new(%$xslate_config);
     my $template_name = $c->template || 'default';
@@ -32,10 +34,7 @@ sub render {
         }
     ) or die "Chiffon::View::Xslate error $@";
 
-    if(utf8::is_utf8($result)) {
-        utf8::encode($result);
-    }
-
+    utf8::encode($result);
     my $res = $c->res;
     $res->status('200');
     $res->body($result);
