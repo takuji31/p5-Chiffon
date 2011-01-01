@@ -7,14 +7,13 @@ githubmeta;
 # requires '';
 requires 'UNIVERSAL::can';
 requires 'UNIVERSAL::require';
-requires 'Carp';
-requires 'Exporter::AutoClean';
 requires 'Router::Simple';
 requires 'Data::Section::Simple';
 requires 'Plack::Middleware::Session';
-requires 'Text::Xslate';
+requires 'Text::Xslate' => '0.1038';
 requires 'Class::Accessor::Lite';
 requires 'Object::Container::Namespace';
+requires 'HTML::FillInForm::Lite' => '1.09';
 
 tests 't/*.t';
 recursive_author_tests 'xt';
