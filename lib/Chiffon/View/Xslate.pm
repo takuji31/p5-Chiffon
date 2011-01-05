@@ -9,7 +9,7 @@ sub render {
     my ( $class, $c ) = @_;
 
     my $conf          = $c->config->{view}->{$class} || {};
-    my $app_name      = $c->config->{app_name} || 'chiffon_app';
+    my $function      = $conf->{function} || {};
     my $xslate_config = {
         cache     => 1,
         cache_dir => '/tmp/',
@@ -17,7 +17,7 @@ sub render {
         type      => 'html',
         suffix    => '.html',
         %$conf,
-        function => { fillinform => html_builder(\&fillinform) },
+        function => { fillinform => html_builder(\&fillinform), %$function },
     };
     my $xslate = Text::Xslate->new(%$xslate_config);
     my $template_name = $c->template || 'default';
