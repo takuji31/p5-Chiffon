@@ -65,7 +65,9 @@ sub base_name {
 sub sub_class {
     my $class = shift;
     my $base_name = $class->base_name;
-    return join '::',$base_name,@_;
+    my $sub_class =  join '::',$base_name,@_;
+    $class->load_class($sub_class);
+    return $sub_class;
 }
 
 sub load_class {

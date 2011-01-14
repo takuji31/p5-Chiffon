@@ -1,6 +1,14 @@
 package  Chiffon::Web::Dispatcher;
 use Chiffon::Core;
-use String::CamelCase qw/camelize/;
+use String::CamelCase qw/camelize decamelize/;
+
+sub export_attr_function {
+    my ($class, $caller ) = @_;
+
+    my $attr = {};
+    add_method_by_coderef($caller,'attr',sub{ $attr });
+    add_method_by_coderef($caller,'base_controller',sub{ _base_controller($caller,@_) });
+}
 
 sub match {
     my ( $self, $env ) = @_;
@@ -24,12 +32,16 @@ sub match {
         if($controller =~ /^[_0-9]/) {
             return;
         }
-        $match->{controller} = camelize($controller);
+        my $camelized_controller = camelize($controller);
+        if($self->_base_controller){
+            $camelized_controller = join '::', $self->_base_controller, $camelized_controller;
+        }
+        $match->{controller} = $camelized_controller;
         my $action     = $match->{action};
         if($action =~ /^[_0-9]/) {
             return;
         }
-        $match->{template} = "$controller/$action";
+        $match->{template} = $self->guess_template_name($camelized_controller,$action);
     }
     return $match;
 }
@@ -38,6 +50,21 @@ sub _create_instance {
     my $args  = shift;
     my $self  = bless $args,$class;
     return $self;
+}
+
+sub _base_controller {
+    my ($class, $base_controller) = @_;
+    return $class->attr->{base_controller} unless $base_controller;
+    $class->attr->{base_controller} = $base_controller;
+    return $base_controller;
+}
+
+sub guess_template_name {
+    my $class = shift;
+    my $namespace = join '::',@_;
+    my $namespace_dc = decamelize($namespace);
+    $namespace_dc =~ s{::}{/}g;
+    return $namespace_dc;
 }
 
 sub _create_router { Carp::croak("This method is abstract!") }

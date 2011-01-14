@@ -18,6 +18,7 @@ sub import {
     add_method_by_coderef($caller,'rule',sub{$rule});
     add_method_by_coderef($caller,'route',sub{ _route($caller,@_) });
     add_method_by_coderef($caller,'all_action',sub{ _all_action($caller,@_) });
+    $class->export_attr_function($caller);
 }
 
 sub new {
