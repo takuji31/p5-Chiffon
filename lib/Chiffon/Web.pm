@@ -92,7 +92,7 @@ sub dispatch {
     # StaticはMiddlewareかサーバー側でうまいことやってる前提
     unless ( $dispatch_rule ) {
         $self->handle_response('404 Not Found',404);
-        detach;
+        return;
     }
 
     $context->dispatch_rule($dispatch_rule);
