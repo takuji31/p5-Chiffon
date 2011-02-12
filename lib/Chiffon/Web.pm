@@ -136,7 +136,6 @@ sub dispatch {
         return;
     }
 
-    $context->finalize;
 }
 
 sub handle_response {
