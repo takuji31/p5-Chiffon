@@ -4,7 +4,7 @@ use Plack::Session;
 
 use Class::Accessor::Lite (
     new => 1,
-    ro  => [qw/ env req res config view session /],
+    ro  => [qw/ env req res config view /],
     rw  => [qw/ dispatch_rule /],
 );
 
