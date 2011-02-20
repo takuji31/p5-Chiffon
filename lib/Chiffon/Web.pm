@@ -57,7 +57,7 @@ sub create_context {
             stash         => {},
             config        => $self->container_class->get('conf') || {},
         }
-    ) or Carp::croak("Can't load request class! cause : $@");
+    ) or Carp::croak("Can't load context class! cause : $@");
     $self->{context} = $context;
 }
 sub create_request {
