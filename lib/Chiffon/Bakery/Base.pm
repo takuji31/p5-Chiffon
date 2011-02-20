@@ -177,9 +177,17 @@ use parent qw/ Chiffon::Web::Response /;
 1;
 
 @@ Controller.tx
+package  [% package %]::Web::Controller;
+use Chiffon::Core;
+use parent qw/Chiffon::Web::Controller/;
+use [% package %]::Container;
+
+1;
+
+@@ ControllerRoot.tx
 package  [% package %]::Web::C::Root;
 use Chiffon::Core;
-use Chiffon::Web::Controller;
+use parent qw/[% package %]::Web::Controller/;
 use [% package %]::Container;
 
 sub do_index {

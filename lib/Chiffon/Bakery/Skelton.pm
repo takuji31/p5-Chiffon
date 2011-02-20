@@ -46,7 +46,8 @@ sub bake {
         ['Dispatcher.tx',"$projpath/$libpath/$basename/Web/",'Dispatcher.pm',$param],
         ['Request.tx',"$projpath/$libpath/$basename/Web/",'Request.pm',$param],
         ['Response.tx',"$projpath/$libpath/$basename/Web/",'Response.pm',$param],
-        ['Controller.tx',"$projpath/$libpath/$basename/Web/C/",'Root.pm',$param],
+        ['Controller.tx',"$projpath/$libpath/$basename/Web/",'Controller.pm',$param],
+        ['ControllerRoot.tx',"$projpath/$libpath/$basename/Web/C/",'Root.pm',$param],
         ['layout.tx',"$projpath/assets/template/",'layout.html',$param],
         ['template.tx',"$projpath/assets/template/root/",'index.html',$param],
     ];
