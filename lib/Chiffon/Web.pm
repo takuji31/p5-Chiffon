@@ -103,8 +103,9 @@ sub dispatch {
     eval {
         $controller->use or do{
             #TODO デバッグモードの時だけStackTrace的なモノを出力
-            warn "Can't load Controller $controller cause : $@";
-            $self->handle_response($@,404);
+            my $msg =  "Can't load Controller $controller cause : $@";
+            warn $msg;
+            $self->handle_response( $msg, 404 );
             detach;
         };
 
@@ -130,7 +131,7 @@ sub dispatch {
 
     if ( $@ ) {
         warn $@;
-        $self->handle_response("Internal Server Error",500);
+        $self->handle_response("Internal Server Error cause: $@",500);
         return;
     }
 
