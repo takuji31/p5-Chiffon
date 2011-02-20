@@ -2,7 +2,7 @@ package Chiffon::Web;
 use Chiffon::Core;
 use Class::Accessor::Lite (
     new => 0,
-    ro => [ qw/ context dispatcher env req res session / ],
+    ro => [ qw/ env / ],
 );
 use parent qw/ Class::Data::Inheritable /;
 
@@ -17,12 +17,6 @@ __PACKAGE__->mk_classdata(
         container  => '', 
     },
 );
-__PACKAGE__->mk_classdata(
-    default_response_header => [
-        'Content-Type' => 'text/html;charset=UTF-8',
-    ],
-);
-
 sub new {
     my ( $class, $args ) = @_;
     bless $args, $class;
@@ -33,78 +27,57 @@ sub app {
 
     return sub {
         my $env = shift;
-        my $self = $class->new( { env => $env } );
 
-        $self->create_request;
-        $self->create_response;
-        $self->create_dispatcher;
-        my $context = $self->create_context;
+        my $context = $class->create_context( $env );
+        $class->dispatch($context);
 
-        $self->dispatch($context);
-
-        return $self->context->finalize;
+        return $context->finalize;
     };
 }
 
 sub create_context {
-    my $self     = shift;
-    my $context = $self->used_modules->{context}->new(
+    my ( $class, $env ) = @_;
+    my $context = $class->context_class->new(
         {
-            env           => $self->env,
-            req           => $self->req,
-            res           => $self->res,
-            view          => $self->view_class,
+            env           => $env,
+            dispatcher    => $class->dispatcher_class->new({ env => $env }),
+            req           => $class->request_class->new( $env ),
+            res           => $class->response_class->new,
+            view          => $class->view_class,
             stash         => {},
-            config        => $self->container_class->get('conf') || {},
+            config        => $class->container_class->get('conf') || {},
         }
     ) or Carp::croak("Can't load context class! cause : $@");
-    $self->{context} = $context;
-}
-sub create_request {
-    my $self     = shift;
-    my $request = $self->used_modules->{request}->new($self->env)
-        or Carp::croak("Can't load request class! cause : $@");
-    $self->{req} = $request;
-}
-sub create_response {
-    my $self     = shift;
-    my $response = $self->used_modules->{response}->new
-        or Carp::croak("Can't load response class! cause : $@");
-    $self->{res} = $response;
-}
-sub create_dispatcher {
-    my $self       = shift;
-    my $dispatcher = $self->used_modules->{dispatcher}->new({ env => $self->env })
-        or Carp::croak("Can't load dispatcher class! cause : $@");
-    $self->{dispatcher} = $dispatcher;
 }
 
 #TODO ViewもInstance化したほうがよい？
-sub view_class { shift->used_modules->{view} }
-sub container_class { shift->used_modules->{container} }
-sub context_class { shift->used_modules->{context} }
+sub view_class       { shift->used_modules->{view} }
+sub container_class  { shift->used_modules->{container} }
+sub context_class    { shift->used_modules->{context} }
+sub dispatcher_class { shift->used_modules->{dispatcher} }
+sub request_class    { shift->used_modules->{request} }
+sub response_class   { shift->used_modules->{response} }
 
 
 sub dispatch {
-    my ($self, $context) = @_;
+    my ($class, $context) = @_;
 
-    my $dispatch_rule = $self->dispatcher->match;
+    my $dispatch_rule = $context->dispatcher->match;
     # StaticはMiddlewareかサーバー側でうまいことやってる前提
     unless ( $dispatch_rule ) {
-        $self->handle_response('404 Not Found',404);
+        $context->handle_response('404 Not Found',404);
         return;
     }
 
     $context->dispatch_rule($dispatch_rule);
 
-    my $class = ref($self);
     my $controller = join '::',$class,'C',$dispatch_rule->{controller};
 
     $controller->use or do{
         #TODO デバッグモードの時だけStackTrace的なモノを出力
         my $msg =  "Can't load Controller $controller cause : $@";
         warn $msg;
-        $self->handle_response( $msg, 404 );
+        $context->handle_response( $msg, 404 );
         return;
     };
 
@@ -112,7 +85,7 @@ sub dispatch {
         my $action = 'do_'.$dispatch_rule->{action};
         unless ( $controller->can($action) ) {
             warn "Action $controller\::$action not found!";
-            $self->handle_response("Action $controller\::$action not found !",404);
+            $context->handle_response("Action $controller\::$action not found !",404);
             detach;
         }
 
@@ -121,36 +94,24 @@ sub dispatch {
         $controller->call_trigger( 'after_action', $context );
 
         $controller->call_trigger( 'before_render', $context );
-        $self->view_class->render( $context );
+        $class->view_class->render( $context );
         $controller->call_trigger( 'after_render', $context );
     };
 
-    if ( $self->is_detached($@) ) {
+    if ( $class->is_detached($@) ) {
         return;
     }
 
     if ( $@ ) {
         warn $@;
-        $self->handle_response("Internal Server Error cause: $@",500);
+        $context->handle_response("Internal Server Error cause: $@",500);
         return;
     }
 
 }
 
-sub handle_response {
-    my ( $self, $body, $status, $header ) = @_;
-
-    $status ||= 200;
-    $header ||= $self->default_response_header;
-
-    my $res = $self->res;
-    $res->status($status);
-    $res->headers($header);
-    $res->body($body);
-}
-
 sub is_detached {
-    my ($self, $message) = @_;
+    my ($class, $message) = @_;
     unless ( $message ) {
         return;
     }

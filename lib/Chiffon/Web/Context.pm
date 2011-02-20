@@ -2,10 +2,18 @@ package  Chiffon::Web::Context;
 use Chiffon::Core;
 use Plack::Session;
 
+use parent qw/Class::Data::Inheritable/;
+
 use Class::Accessor::Lite (
     new => 1,
-    ro  => [qw/ env req res config view /],
+    ro  => [qw/ env req res config view context /],
     rw  => [qw/ dispatch_rule /],
+);
+
+__PACKAGE__->mk_classdata(
+    default_response_header => [
+        'Content-Type' => 'text/html;charset=UTF-8',
+    ],
 );
 
 sub stash : lvalue {
@@ -50,5 +58,18 @@ sub redirect {
     $class->res->redirect(@_);
     detach;
 }
+
+sub handle_response {
+    my ( $self, $body, $status, $header ) = @_;
+
+    $status ||= 200;
+    $header ||= $self->default_response_header;
+
+    my $res = $self->res;
+    $res->status($status);
+    $res->headers($header);
+    $res->body($body);
+}
+
 
 1;
