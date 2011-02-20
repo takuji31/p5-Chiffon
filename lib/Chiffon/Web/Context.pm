@@ -15,14 +15,9 @@ sub template { shift->{dispatch_rule}->{template} }
 *request  = \&req;
 *response = \&res;
 
-sub initialize {
+sub session {
     my $self = shift;
-    $self->create_session;
-}
-
-sub create_session {
-    my $self = shift;
-    $self->{session} = Plack::Session->new( $self->env );
+    $self->{session} ||= Plack::Session->new( $self->env );
 }
 
 sub uri_with {

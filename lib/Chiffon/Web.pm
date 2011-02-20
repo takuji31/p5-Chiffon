@@ -108,8 +108,6 @@ sub dispatch {
             detach;
         };
 
-        $context->initialize;
-
         my $action = 'do_'.$dispatch_rule->{action};
         unless ( $controller->can($action) ) {
             warn "Action $controller\::$action not found!";
