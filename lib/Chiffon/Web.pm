@@ -115,13 +115,13 @@ sub dispatch {
             detach;
         }
 
-        $controller->call_trigger('before_action');
-        $controller->$action($context);
-        $controller->call_trigger('after_action');
+        $controller->call_trigger( 'before_action', $context );
+        $controller->$action( $context );
+        $controller->call_trigger( 'after_action', $context );
 
-        $controller->call_trigger('before_render');
-        $self->view_class->render($context);
-        $controller->call_trigger('after_render');
+        $controller->call_trigger( 'before_render', $context );
+        $self->view_class->render( $context );
+        $controller->call_trigger( 'after_render', $context );
     };
 
     if ( $self->is_detached($@) ) {

@@ -1,36 +1,13 @@
 package  Chiffon::Web::Controller;
 use Chiffon::Core;
-
+use parent qw/Class::Data::Inheritable/;
 use Carp();
 
-sub import {
-    my $class  = shift;
-    my $caller = caller;
-
-    my @methods = qw/
-        new call_trigger
-        req res request response view template
-        stash redirect config session
-    /;
-    for my $method ( @methods ) {
-        $class->add_method( $caller, $method );
-    }
-    my $t = {
-        before_action =>[],
-        before_render =>[],
-        after_action  =>[],
-        after_render  =>[],
-    };
-    add_method_by_coderef( $caller, 'triggers', sub{ $t } );
-}
-
-sub new {
-    my ( $class, $args ) = @_;
-    bless $args,$class;
-}
+__PACKAGE__->mk_classdata(
+    triggers => {},
+);
 
 #trigger
-
 my @triggers = qw/ before_action before_render after_render after_action /;
 
 sub add_trigger {
@@ -41,32 +18,41 @@ sub add_trigger {
     unless( ref($code) eq 'CODE' ){
         Carp::cluck('Method add_trigger needs code reference !');
     }
-    push @{$class->triggers->{$trigger}},$code;
+    $class->triggers->{$class} ||= {};
+    $class->triggers->{$class}->{$trigger} ||= [];
+    push @{$class->triggers->{$class}->{$trigger}},$code;
 }
 
 sub call_trigger {
-    my ( $self, $trigger ) = @_;
-    my $codes = $self->triggers->{$trigger} || [];
+    my ( $class, $trigger, $context ) = @_;
+    my $codes = $class->get_triggers ( $trigger );
 
     for my $code ( @$codes ) {
-        $code->( $self );
+        $code->( $class, $context );
     }
 }
 
-sub redirect {
-    my $self = shift;
-    $self->res->redirect(@_);
-    detach;
-}
+sub get_triggers {
+    my ( $class, $trigger_name, $triggers ) = @_;
 
-sub req           { shift->{req} }
-sub res           { shift->{res} }
-sub request       { shift->{req} }
-sub response      { shift->{res} }
-sub config        { shift->{config} }
-sub view          { shift->{view} }
-sub stash :lvalue { shift->{stash} }
-sub template      { shift->{dispatch_rule}->{template} }
-sub session       { shift->{session} }
+    $triggers ||= [];
+    if ( __PACKAGE__ ne $class ) {
+        my @parents;
+        {
+            no strict 'refs';
+            @parents = @{$class.'::ISA'};
+        }
+        for my $parent ( @parents ) {
+            if ( $parent->can('get_triggers') ) {
+                $parent->get_triggers( $trigger_name, $triggers );
+            }
+        }
+        my $class_triggers = $class->triggers->{$class} || {};
+        my $my_triggers = $class_triggers->{$trigger_name} || [];
+        push @$triggers, @$my_triggers;
+    }
+    return $triggers;
+
+}
 
 1;
