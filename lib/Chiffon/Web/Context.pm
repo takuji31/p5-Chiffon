@@ -45,4 +45,10 @@ sub finalize {
     $self->res->finalize;
 }
 
+sub redirect {
+    my $class = shift;
+    $class->res->redirect(@_);
+    detach;
+}
+
 1;
