@@ -13,10 +13,6 @@ __PACKAGE__->mk_classdata(
         container  => '', 
     },
 );
-sub new {
-    my ( $class, $args ) = @_;
-    bless $args, $class;
-}
 
 sub app {
     my $class = shift;
