@@ -1,9 +1,5 @@
 package Chiffon::Web;
 use Chiffon::Core;
-use Class::Accessor::Lite (
-    new => 0,
-    ro => [ qw/ env / ],
-);
 use parent qw/ Class::Data::Inheritable /;
 
 
