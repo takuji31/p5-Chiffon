@@ -100,15 +100,15 @@ sub dispatch {
     my $class = ref($self);
     my $controller = join '::',$class,'C',$dispatch_rule->{controller};
 
-    eval {
-        $controller->use or do{
-            #TODO デバッグモードの時だけStackTrace的なモノを出力
-            my $msg =  "Can't load Controller $controller cause : $@";
-            warn $msg;
-            $self->handle_response( $msg, 404 );
-            detach;
-        };
+    $controller->use or do{
+        #TODO デバッグモードの時だけStackTrace的なモノを出力
+        my $msg =  "Can't load Controller $controller cause : $@";
+        warn $msg;
+        $self->handle_response( $msg, 404 );
+        return;
+    };
 
+    eval {
         my $action = 'do_'.$dispatch_rule->{action};
         unless ( $controller->can($action) ) {
             warn "Action $controller\::$action not found!";
