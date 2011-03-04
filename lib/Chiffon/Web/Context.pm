@@ -6,7 +6,7 @@ use parent qw/Class::Data::Inheritable/;
 
 use Class::Accessor::Lite (
     new => 1,
-    ro  => [qw/ env req res config view context /],
+    ro  => [qw/ env req res config view dispatcher /],
     rw  => [qw/ dispatch_rule /],
 );
 
