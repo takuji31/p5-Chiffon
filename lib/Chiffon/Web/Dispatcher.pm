@@ -12,7 +12,6 @@ sub export_attr_function {
 
 sub match {
     my ( $self, $env ) = @_;
-    $env ||= $self->{env};
     my $match = $self->{router}->match($env);
     if ( $match ) {
         if( $match->{with_param} ) {

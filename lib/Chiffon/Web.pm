@@ -54,7 +54,7 @@ sub response_class   { shift->used_modules->{response} }
 sub dispatch {
     my ($class, $context) = @_;
 
-    my $dispatch_rule = $context->dispatcher->match;
+    my $dispatch_rule = $context->dispatcher->match( $context->env );
     # StaticはMiddlewareかサーバー側でうまいことやってる前提
     unless ( $dispatch_rule ) {
         $context->handle_response('404 Not Found',404);
