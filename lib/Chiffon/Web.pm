@@ -65,7 +65,7 @@ sub dispatch {
 
     my $controller = join '::',$class,'C',$dispatch_rule->{controller};
 
-    $controller->use or do{
+    load_class($controller) or do{
         #TODO デバッグモードの時だけStackTrace的なモノを出力
         my $msg =  "Can't load Controller $controller cause : $@";
         warn $msg;

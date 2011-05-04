@@ -4,7 +4,7 @@ use warnings;
 use utf8;
 use Carp ();
 use UNIVERSAL::can;
-use UNIVERSAL::require;
+use Class::Load ':all';
 
 sub import {
     strict->import;
@@ -46,7 +46,8 @@ sub add_method_by_coderef {
         Carp::croak("This is not code reference! $code");
     }
     {
-        no strict 'refs';    ## no critic
+        no strict 'refs';       ## no critic
+        no warnings 'redefine'; ## no critic
         *{"$target\::$method_name"} = $code;
     }
 }
@@ -68,11 +69,6 @@ sub sub_class {
     my $sub_class =  join '::',$base_name,@_;
     $class->load_class($sub_class);
     return $sub_class;
-}
-
-sub load_class {
-    my ( $class, $load_class ) = @_;
-    $load_class->require or Carp::croak $@;
 }
 
 1;
