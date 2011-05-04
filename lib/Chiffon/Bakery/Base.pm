@@ -119,7 +119,7 @@ our $VERSION = '0.01';
 @@ Container.tx
 package  [% package %]::Container;
 use Chiffon::Core;
-use Chiffon::Container -base;
+use Chiffon::Container;
 
 1;
 
