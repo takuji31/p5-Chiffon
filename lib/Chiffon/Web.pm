@@ -39,7 +39,7 @@ sub set_use_modules {
 
     for my $type ( qw( request response router view ) ) {
         my $module = $modules{$type} || $DEFAULT_MODULE{$type};
-        Carp::croak("Module for $type does not passed!") unless $module;
+        Carp::croak("Module for $type does not passed!") unless $module || $class->can("${type}_class");
         load_class($module);
         {
             no strict 'refs';
