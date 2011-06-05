@@ -1,5 +1,6 @@
 package  Chiffon::Web::Response;
-use Chiffon::Core;
+use strict;
+use warnings;
 
 use parent qw/Plack::Response/;
 

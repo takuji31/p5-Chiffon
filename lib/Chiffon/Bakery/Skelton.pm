@@ -1,7 +1,9 @@
 package  Chiffon::Bakery::Skelton;
-use Chiffon::Core;
+use strict;
+use warnings;
+
 use parent qw/Chiffon::Bakery::Base/;
-use String::CamelCase qw/decamelize/;
+use Chiffon::Utils;
 
 sub bake {
     my ( $class, $proj ) = @_;

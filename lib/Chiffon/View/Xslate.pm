@@ -1,5 +1,7 @@
 package  Chiffon::View::Xslate;
-use Chiffon::Core;
+use strict;
+use warnings;
+
 use Text::Xslate qw/html_builder/;
 use HTML::FillInForm::Lite qw/fillinform/;
 
@@ -27,19 +29,12 @@ sub render {
         {
             %{$c->stash},
             req     => $c->req,
-            res     => $c->res,
             config  => $c->config,
-            session => $c->session,
             c       => $c,
         }
     ) or die "Chiffon::View::Xslate error $@";
 
-    utf8::encode($result);
-    my $res = $c->res;
-    $res->status('200');
-    $res->body($result);
-    $res->headers([ 'Content-Type' => 'text/html' ]);
-    return $res;
+    return $result;
 }
 
 1;

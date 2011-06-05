@@ -1,58 +1,23 @@
 package  Chiffon::Web::Controller;
-use Chiffon::Core;
-use parent qw/Class::Data::Inheritable/;
-use Carp();
+use strict;
+use warnings;
 
-__PACKAGE__->mk_classdata(
-    triggers => {},
-);
+use Chiffon::Trigger;
 
-#trigger
-my @triggers = qw/ before_action before_render after_render after_action /;
-
-sub add_trigger {
-    my ( $class, $trigger, $code ) = @_;
-    unless ( grep /$trigger/,@triggers ){
-        Carp::cluck("Trigger $trigger does not exists !");
-    }
-    unless( ref($code) eq 'CODE' ){
-        Carp::cluck('Method add_trigger needs code reference !');
-    }
-    $class->triggers->{$class} ||= {};
-    $class->triggers->{$class}->{$trigger} ||= [];
-    push @{$class->triggers->{$class}->{$trigger}},$code;
+sub has_action {
+    my ($class, $action) = @_;
+    return $class->can("do_$action");
 }
 
-sub call_trigger {
-    my ( $class, $trigger, $context ) = @_;
-    my $codes = $class->get_triggers ( $trigger );
+sub run_action {
+    my ($class, $c, $action, $args) = @_;
+    $action = "do_$action";
+    $args ||= [];
 
-    for my $code ( @$codes ) {
-        $code->( $class, $context );
-    }
-}
-
-sub get_triggers {
-    my ( $class, $trigger_name, $triggers ) = @_;
-
-    $triggers ||= [];
-    if ( __PACKAGE__ ne $class ) {
-        my @parents;
-        {
-            no strict 'refs';
-            @parents = @{$class.'::ISA'};
-        }
-        for my $parent ( @parents ) {
-            if ( $parent->can('get_triggers') ) {
-                $parent->get_triggers( $trigger_name, $triggers );
-            }
-        }
-        my $class_triggers = $class->triggers->{$class} || {};
-        my $my_triggers = $class_triggers->{$trigger_name} || [];
-        push @$triggers, @$my_triggers;
-    }
-    return $triggers;
-
+    $class->call_trigger('before_action', $c);
+    $class->$action($c, @$args);
+    $class->call_trigger('after_action', $c);
+    return $c;
 }
 
 1;

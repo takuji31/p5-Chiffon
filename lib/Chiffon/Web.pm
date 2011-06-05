@@ -1,152 +1,220 @@
-package Chiffon::Web;
-use Chiffon::Core;
-use parent qw/ Class::Data::Inheritable /;
+package  Chiffon::Web;
+use strict;
+use warnings;
 
+use Class::Accessor::Lite (
+    new => 0,
+    rw  => [qw(controller action req)],
+);
 
-__PACKAGE__->mk_classdata(
-    used_modules => {
-        context    => '',
+use Carp ();
+use Class::Load qw( load_class );
+use Encode ();
+use Scalar::Util ();
+use Try::Tiny;
+use URI;
+
+use Chiffon::Exception;
+use Chiffon::Trigger;
+use Chiffon::Utils;
+use Chiffon::Web::Request;
+use Chiffon::Web::Response;
+
+my %DEFAULT_MODULE = (
         request    => 'Chiffon::Web::Request',
         response   => 'Chiffon::Web::Response',
-        dispatcher => '',
         view       => 'Chiffon::View::Xslate',
-        container  => '', 
-    },
 );
+
+sub create_request { shift->request_class->new(@_) }
+sub create_response { shift->response_class->new(@_) }
+
+sub html_content_type { 'text/html;charset=UTF-8' }
+
+sub encoding { 'utf-8' }
+
+sub set_use_modules {
+    my $class = shift;
+    my %modules = @_;
+
+    for my $type ( qw( request response router view ) ) {
+        my $module = $modules{$type} || $DEFAULT_MODULE{$type};
+        Carp::croak("Module for $type does not passed!") unless $module;
+        load_class($module);
+        {
+            no strict 'refs';
+            *{"$class\::${type}_class"} = sub { $module };
+        }
+    }
+}
+
+sub res {
+    my $self = shift;
+    $self->{res} ||= $self->create_response();
+}
 
 sub app {
     my $class = shift;
 
     return sub {
         my $env = shift;
+        my $req = $class->create_request($env);
 
-        my $context = $class->create_context( $env );
-        $class->dispatch($context);
+        my $self = $class->new(
+            req   => $req,
+            stash => {},
+        );
 
-        return $context->finalize;
+        my $res;
+
+        try {
+            $res = $self->dispatch;
+        } catch {
+            my $e = shift;
+
+            unless ( Scalar::Util::blessed($e) && $e->isa('Chiffon::Exception::HTTP') ) {
+                #TODO 500 Internal Server Error
+                die $e;
+            } else {
+                $res = $e->response;
+            }
+        };
+
+        return $res;
+
     };
 }
 
-sub create_context {
-    my ( $class, $env ) = @_;
-    my $context = $class->context_class->new(
-        {
-            env           => $env,
-            dispatcher    => $class->dispatcher_class->new({ env => $env }),
-            req           => $class->request_class->new( $env ),
-            res           => $class->response_class->new,
-            view          => $class->view_class,
-            stash         => {},
-            config        => $class->container_class->get('conf') || {},
-        }
-    ) or Carp::croak("Can't load context class! cause : $@");
+sub load_controller {
+    my ($self, $controller) = @_;
+    load_class($controller) or do {
+        my $msg = "Can't load controller $controller cause $@";
+        warn $msg;
+        Chiffon::Exception::HTTP::NotFound->throw(res => $msg);
+    };
+    unless ( $controller->isa('Chiffon::Web::Controller') ) {
+        die "$controller is not a sub class of Chiffon::Web::Controller";
+    };
 }
-
-#TODO ViewもInstance化したほうがよい？
-sub view_class       { shift->used_modules->{view} }
-sub container_class  { shift->used_modules->{container} }
-sub context_class    { shift->used_modules->{context} }
-sub dispatcher_class { shift->used_modules->{dispatcher} }
-sub request_class    { shift->used_modules->{request} }
-sub response_class   { shift->used_modules->{response} }
-
 
 sub dispatch {
-    my ($class, $context) = @_;
+    my $self = shift;
 
-    my $dispatch_rule = $context->dispatcher->match( $context->env );
-    # StaticはMiddlewareかサーバー側でうまいことやってる前提
-    unless ( $dispatch_rule ) {
-        $context->handle_response('404 Not Found',404);
-        return;
-    }
-
-    $context->dispatch_rule($dispatch_rule);
-
-    my $controller = join '::',$class,'C',$dispatch_rule->{controller};
-
-    load_class($controller) or do{
-        #TODO デバッグモードの時だけStackTrace的なモノを出力
-        my $msg =  "Can't load Controller $controller cause : $@";
+    my ($controller, $action, $args) = $self->router_class->match($self->req->env);
+    unless ( $controller ) {
+        my $msg = "Controller $controller not found";
         warn $msg;
-        $context->handle_response( $msg, 404 );
-        return;
-    };
-
-    eval {
-        my $action = 'do_'.$dispatch_rule->{action};
-        unless ( $controller->can($action) ) {
-            warn "Action $controller\::$action not found!";
-            $context->handle_response("Action $controller\::$action not found !",404);
-            detach;
-        }
-
-        $controller->call_trigger( 'before_action', $context );
-        $controller->$action( $context );
-        $controller->call_trigger( 'after_action', $context );
-
-        $controller->call_trigger( 'before_render', $context );
-        $class->view_class->render( $context );
-        $controller->call_trigger( 'after_render', $context );
-    };
-
-    if ( $class->is_detached($@) ) {
-        return;
+        Chiffon::Exception::HTTP::NotFound->throw(res => $msg);
     }
 
-    if ( $@ ) {
-        warn $@;
-        $context->handle_response("Internal Server Error cause: $@",500);
-        return;
+    my $controller_class = join '::', ref($self), 'C', $controller;
+
+    $self->load_controller($controller_class);
+
+    unless ( $controller_class->has_action($action) ) {
+        Chiffon::Exception::HTTP::NotFound->throw;
     }
+
+    #set parameter
+    $self->controller($controller);
+    $self->action($action);
+
+    $self->call_trigger('before_action');
+
+    $controller_class->run_action($self, $action, $args);
+
+    $self->call_trigger('after_action');
+
+    my $res = $self->render($self,$controller_class);
+
+    $res->finalize;
+}
+
+sub template {
+    my ($self, $path) = @_;
+    if ( $path ) {
+        $self->{template} = $path;
+    } else {
+        $path = $self->{template} || $self->guess_template_path;
+    }
+    return $path;
+}
+
+sub guess_template_path {
+    my $self = shift;
+    return join "/", decamelize($self->controller), $self->action;
+}
+
+sub render {
+    my ($self, $controller) = @_;
+    my $html = $self->view_class->render($self);
+
+    for my $code ( $self->get_trigger_code('html_filter') ) {
+        $html = $code->($self,$html);
+    }
+
+    for my $code ( $controller->get_trigger_code('html_filter')  ) {
+        $html = $code->($controller,$self,$html);
+    }
+
+    $html = $self->encode_html($html);
+
+    return $self->create_response(
+        200,
+        ['Content-Type' => $self->html_content_type, 'Content-Length' => length $html],
+        $html,
+    );
 
 }
 
-sub is_detached {
-    my ($class, $message) = @_;
-    unless ( $message ) {
-        return;
+sub encode_html {
+    my ($self, $html) = @_;
+    return Encode::encode($self->encoding, $html);
+}
+
+sub stash : lvalue {
+    my $self = shift;
+    $self->{stash} ||= {};
+    $self->{stash};
+}
+
+sub redirect {
+    my ($self, $location, $params) = @_;
+
+    $params ||= {};
+
+    if( $location =~ m{^/} ) {
+        my $req = $self->req;
+        my $scheme = $req->uri->scheme;
+        my $port = $req->uri->port;
+        $port = (( $scheme eq 'http' && $port != 80 ) || ( $scheme eq 'https' && $port != 443 ) ) ? ":$port" : "";
+        $location = $scheme . "://". $req->uri->host . $port . $location;
     }
-    return $message =~ /CHIFFON_DETACH/;
+
+    my $uri = URI->new($location);
+    $uri->query_form(%$params, $uri->query_form);
+    $location = $uri->as_string;
+    Chiffon::Exception::HTTP::Redirect->throw(location => $location);
+}
+
+sub uri_with {
+    my ( $self, $args ) = @_;
+
+    Carp::carp('No arguments passed to uri_with()') unless $args;
+
+    for my $value ( values %{$args} ) {
+        next unless defined $value;
+        for ( ref $value eq 'ARRAY' ? @{$value} : $value ) {
+            $_ = "$_";
+            utf8::encode($_);
+        }
+    }
+
+    load_class('URI::QueryParam');
+
+    my $uri = $self->req->uri->clone;
+    $uri->query_form( { %{ $uri->query_form_hash }, %{$args}, } );
+    return $uri;
 }
 
 1;
-__END__
-
-=head1 NAME
-
-Chiffon::Web - Plack Web app handler for Chiffon
-
-=head1 SYNOPSIS
-
-package MyApp::Web;
-use Chiffon::Core;
-use Chiffon::Web;
-use Chiffon::View::Xslate;
-use MyApp::Web::Dispatcher;
-use MyApp::Container;
-
-
-app.psgi
-
-use MyApp::Web;
-use Plack::Builder;
-
-builder {
-    MyApp::Web->app;
-};
-
-=head1 DESCRIPTION
-
-Plack app handler for Chiffon
-
-=head1 AUTHOR
-
-Nishibayashi Takuji E<lt>takuji {at} senchan.jpE<gt>
-
-=head1 LICENSE
-
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself.
-
-=cut

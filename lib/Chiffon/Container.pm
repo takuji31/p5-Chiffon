@@ -1,8 +1,6 @@
 package  Chiffon::Container;
-use Chiffon::Core;
-use Cwd qw/realpath/;
-use String::CamelCase qw/camelize/;
-use Path::Class qw/file dir/;
+use strict;
+use warnings;
 
 sub import {
     my $class  = shift;
@@ -27,27 +25,7 @@ sub import {
         }
         $caller->_register(
             home => sub{
-                if( $ENV{CHIFFON_APP_HOME} ){
-                    return dir($ENV{CHIFFON_APP_HOME}) if $ENV{CHIFFON_APP_HOME};
-                }
-                my $class = shift;
-
-                $class = ref $class || $class;
-                my $class_file = "$class.pm";
-                $class_file =~ s{::}{/}g;
-                if (my $class_path = $INC{$class_file} ){
-                    my $realpath = realpath($class_path);
-                    $realpath =~ s/$class_file$//;
-                    my $path = dir($realpath);
-                    if(-d $path) {
-                        $path = $path->absolute;
-                    }
-                    while ($path->dir_list(-1) =~ /^b?lib$/) {
-                        $path = $path->parent;
-                    }
-                    return $path;
-                }
-                die 'Home directory not found. Please set $ENV{CHIFFON_APP_HOME}';
+                Chiffon->context->base_dir;
             }
         );
         $caller->_register(

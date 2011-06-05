@@ -1,5 +1,7 @@
 package  Chiffon::Bakery::Base;
-use Chiffon::Core;
+use strict;
+use warnings;
+
 use Text::Xslate;
 use Data::Section::Simple;
 use Path::Class;
