@@ -2,6 +2,8 @@ package  Chiffon::Container;
 use strict;
 use warnings;
 
+use Chiffon::Config::Simple;
+
 sub import {
     my $class  = shift;
     my $caller = caller;
@@ -30,23 +32,7 @@ sub import {
         );
         $caller->_register(
             conf => sub {
-                my $class = shift;
-                my $home = $class->get('home');
-                # dev test product etc...
-                my $env  = $ENV{PLACK_ENV} || 'production';
-
-                my $conf = {};
-                my $file = $home->file('config.pl');
-                if (-e $file) {
-                    my $c = do $file;
-                    die 'config should return HASHREF'
-                        unless ref($c) and ref($c) eq 'HASH';
-                    #merge common and env config
-                    my $conf_common = $c->{common} || {};
-                    my $conf_env = $c->{$env} || {};
-                    $conf = { %$conf_common, %$conf_env };
-                }
-                return $conf;
+                Chiffon::Config::Simple->new(Chiffon->context);
             },
         );
     }
