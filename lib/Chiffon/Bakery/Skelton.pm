@@ -40,16 +40,15 @@ sub bake {
 
     my $output_files = [
         ['app.psgi.tx',"$projpath/",'app.psgi',$param],
-        ['config.pl.tx',"$projpath/",'config.pl',$param],
+        ['config.pl.tx',"$projpath/config",'development.pl',$param],
+        ['config.pl.tx',"$projpath/config",'production.pl',$param],
         ['Root.tx',"$projpath/$libpath/",$rootpm,$param],
-        ['Container.tx',"$projpath/$libpath/$basename/",'Container.pm',$param],
         ['Web.tx',"$projpath/$libpath/$basename/",'Web.pm',$param],
-        ['Context.tx',"$projpath/$libpath/$basename/Web/",'Context.pm',$param],
-        ['Dispatcher.tx',"$projpath/$libpath/$basename/Web/",'Dispatcher.pm',$param],
+        ['Router.tx',"$projpath/$libpath/$basename/Web/",'Router.pm',$param],
         ['Request.tx',"$projpath/$libpath/$basename/Web/",'Request.pm',$param],
         ['Response.tx',"$projpath/$libpath/$basename/Web/",'Response.pm',$param],
-        ['Controller.tx',"$projpath/$libpath/$basename/Web/",'Controller.pm',$param],
-        ['ControllerRoot.tx',"$projpath/$libpath/$basename/Web/C/",'Root.pm',$param],
+        ['BaseController.tx',"$projpath/$libpath/$basename/Web/",'Controller.pm',$param],
+        ['Controller.tx',"$projpath/$libpath/$basename/Web/C/",'Root.pm',{%$param, controller => 'Root'}],
         ['layout.tx',"$projpath/assets/template/",'layout.html',$param],
         ['template.tx',"$projpath/assets/template/root/",'index.html',$param],
     ];

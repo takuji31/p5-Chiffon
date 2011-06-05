@@ -52,10 +52,9 @@ __DATA__
 
 @@ app.psgi.tx
 use [% package %]::Web;
-use [% package %]::Container;
 use Plack::Builder;
 
-my $home = container('home');
+my $home = [% package %]::Web->base_dir;
 builder {
     enable 'Static',
         path => qr{^/(img/|js/|css/|favicon\.ico)},
@@ -66,54 +65,39 @@ builder {
 };
 
 @@ config.pl.tx
-use Chiffon::Core;
-use [% package %]::Container;
-use Path::Class;
+use strict;
+use warnings;
 
-my $home = container('home');
+use [% package %];
+
+my $home = [% package %]->base_dir;
 return +{
-    common => {
-        app_name => '[% app_name %]',
-        view => {
-            'Chiffon::View::Xslate' => +{
-                path   => $home->file('assets/template')->stringify,
-                cache     => 1,
-                cache_dir => '/tmp/[% app_name %]',
-                syntax    => 'Kolon',
-                type      => 'html',
-                suffix    => '.html',
-            },
-        },
-        datasource => +{
-            master => +{
-                dsn => 'dbi:mysql:[% app_name %];user=root',
-            },
-        },
-        hostname => +{
-        },
-        plugins => +{
+    app_name => '[% app_name %]',
+    view => {
+        'Chiffon::View::Xslate' => +{
+            path   => $home->file('assets/template')->stringify,
+            cache     => 1,
+            cache_dir => '/tmp/[% app_name %]',
+            syntax    => 'Kolon',
+            type      => 'html',
+            suffix    => '.html',
         },
     },
-    dev     => {
-        datasource => +{
-            master => +{
-                dsn => 'dbi:mysql:[% app_name %];user=root',
-            },
+    datasource => +{
+        master => +{
+            dsn => 'dbi:mysql:[% app_name %];user=root',
         },
     },
-    production => {
-        datasource => +{
-            master => +{
-                dsn => 'dbi:mysql:[% app_name %];user=root',
-            },
-        },
+    hostname => +{
+    },
+    plugins => +{
     },
 };
 
 
 @@ Root.tx
 package [% package %];
-use Chiffon::Core;
+use parent 'Chiffon';
 our $VERSION = '0.01';
 
 1;
@@ -127,70 +111,62 @@ use Chiffon::Container;
 
 @@ Web.tx
 package  [% package %]::Web;
-use Chiffon::Core;
-use Chiffon::View::Xslate;
-use [% package %]::Web::Context;
-use [% package %]::Web::Request;
-use [% package %]::Web::Response;
-use [% package %]::Web::Dispatcher;
-use [% package %]::Container;
-use parent qw/ Chiffon::Web /;
+use strict;
+use warnings;
 
-__PACKAGE__->used_modules({
-    container  => '[% package %]::Container',
-    context    => '[% package %]::Web::Context',
+use parent qw([% package %] Chiffon::Web);
+
+__PACKAGE__->set_use_modules(
     request    => '[% package %]::Web::Request',
     response   => '[% package %]::Web::Response',
-    dispatcher => '[% package %]::Web::Dispatcher',
+    router     => '[% package %]::Web::Router',
     view       => 'Chiffon::View::Xslate',
-});
+);
 
 1;
 
-@@ Context.tx
-package  [% package %]::Web::Context;
-use Chiffon::Core;
-use [% package %]::Container;
-use parent qw/ Chiffon::Web::Context /;
+@@ Router.tx
+package  [% package %]::Web::Router;
+use strict;
+use warnings;
 
-1;
-
-@@ Dispatcher.tx
-package  [% package %]::Web::Dispatcher;
-use Chiffon::Core;
-use Chiffon::Web::Dispatcher::RailsLike;
+use Chiffon::Web::Router;
 
 1;
 
 @@ Request.tx
 package  [% package %]::Web::Request;
-use Chiffon::Core;
-use [% package %]::Container;
-use parent qw/ Chiffon::Web::Request /;
+use strict;
+use warnings;
+
+use parent 'Chiffon::Web::Request';
 
 1;
 
 @@ Response.tx
 package  [% package %]::Web::Response;
-use Chiffon::Core;
-use [% package %]::Container;
-use parent qw/ Chiffon::Web::Response /;
+use strict;
+use warnings;
+
+use parent 'Chiffon::Web::Response';
+
+1;
+
+@@ BaseController.tx
+package  [% package %]::Web::Controller;
+use strict;
+use warnings;
+
+use parent 'Chiffon::Web::Controller';
 
 1;
 
 @@ Controller.tx
-package  [% package %]::Web::Controller;
-use Chiffon::Core;
-use parent qw/Chiffon::Web::Controller/;
-use [% package %]::Container;
+package  [% package %]::Web::C::[% controller %];
+use strict;
+use warnings;
 
-1;
-
-@@ ControllerRoot.tx
-package  [% package %]::Web::C::Root;
-use Chiffon::Core;
 use parent qw/[% package %]::Web::Controller/;
-use [% package %]::Container;
 
 sub do_index {
     my ( $class, $c ) = @_;
