@@ -2,8 +2,6 @@ package  Chiffon::Container;
 use strict;
 use warnings;
 
-use Chiffon::Config::Simple;
-
 sub import {
     my $class  = shift;
     my $caller = caller;
@@ -32,7 +30,7 @@ sub import {
         );
         $caller->_register(
             conf => sub {
-                Chiffon::Config::Simple->new(Chiffon->context);
+                Chiffon->context->config;
             },
         );
     }
