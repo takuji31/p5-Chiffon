@@ -13,7 +13,7 @@ sub render {
     my ( $class, $template, $args ) = @_;
 
     my $tx = Text::Xslate->new(
-        path => [ Data::Section::Simple->new(__PACKAGE__)->get_data_section ],
+        path => [ Data::Section::Simple->new(__PACKAGE__)->get_data_section, Data::Section::Simple->new($class)->get_data_section ],
         syntax => 'TTerse',
     );
 
