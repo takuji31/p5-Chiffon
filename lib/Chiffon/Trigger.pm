@@ -33,13 +33,15 @@ sub call_trigger {
 sub get_trigger_code {
     my ($class, $hook) = @_;
     my @code;
+    my $klass = ref $class || $class;
+    {
+        no strict 'refs';
+        for (reverse @{mro::get_linear_isa($klass)}) {
+            push @code, @{${"${_}::_trigger"}->{$hook} || []};
+        }
+    }
     if (Scalar::Util::blessed($class)) {
         push @code, @{ $class->{_trigger}->{$hook} || [] };
-        $class = ref $class;
-    }
-    no strict 'refs';
-    for (reverse @{mro::get_linear_isa($class)}) {
-        push @code, @{${"${_}::_trigger"}->{$hook} || []};
     }
     return @code;
 }
