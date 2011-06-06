@@ -23,18 +23,7 @@ sub import {
             *{"$caller\::_registered_classes"} = sub {$registered_class};
             *{"$caller\::register"}            = sub { _register( $caller, @_ ) };
         }
-        $caller->_register(
-            home => sub{
-                Chiffon->context->base_dir;
-            }
-        );
-        $caller->_register(
-            conf => sub {
-                Chiffon->context->config;
-            },
-        );
-    }
-    else {
+    } else {
         no strict 'refs';
         *{"$caller\::container"} = sub {
             my $pkg = shift;
