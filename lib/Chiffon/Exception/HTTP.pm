@@ -72,9 +72,6 @@ sub response {
     my $body = 'Redirect';
     my $headers = [ 'Content-Type' => 'text/plain', 'Content-Length' => length $body, 'Location' => $location ];
 
-    use Data::Dumper;
-    warn Dumper $headers;
-
     return [
         302,
         $headers,
