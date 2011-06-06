@@ -38,8 +38,7 @@ sub get_trigger_code {
         $class = ref $class;
     }
     no strict 'refs';
-    my $klass = ref $class || $class;
-    for (@{mro::get_linear_isa($class)}) {
+    for (reverse @{mro::get_linear_isa($class)}) {
         push @code, @{${"${_}::_trigger"}->{$hook} || []};
     }
     return @code;
