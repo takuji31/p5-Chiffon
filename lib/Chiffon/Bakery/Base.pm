@@ -51,6 +51,9 @@ sub output_template {
 __DATA__
 
 @@ app.psgi.tx
+use strict;
+use warnings;
+
 use [% package %]::Web;
 use Plack::Builder;
 
