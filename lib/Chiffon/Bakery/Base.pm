@@ -100,6 +100,9 @@ return +{
 
 @@ Root.tx
 package [% package %];
+use strict;
+use warnings;
+
 use parent 'Chiffon';
 our $VERSION = '0.01';
 
@@ -107,7 +110,9 @@ our $VERSION = '0.01';
 
 @@ Container.tx
 package  [% package %]::Container;
-use Chiffon::Core;
+use strict;
+use warnings;
+
 use Chiffon::Container;
 
 1;
