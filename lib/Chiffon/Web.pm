@@ -8,7 +8,7 @@ use Class::Accessor::Lite (
 );
 
 use Carp ();
-use Class::Load qw( load_class );
+use Class::Load qw( :all );
 use Encode ();
 use Scalar::Util ();
 use Try::Tiny;
@@ -65,6 +65,7 @@ sub app {
             stash => {},
         );
 
+        local $Chiffon::CONTEXT = $self;
         my $res;
 
         try {
@@ -87,10 +88,14 @@ sub app {
 
 sub load_controller {
     my ($self, $controller) = @_;
-    load_class($controller) or do {
-        my $msg = "Can't load controller $controller cause $@";
+    my ($result, $msg) = try_load_class($controller);
+    unless ( $result ) {
         warn $msg;
-        Chiffon::Exception::HTTP::NotFound->throw(res => $msg);
+        if( $msg =~ /Can't locate/ ) {
+            Chiffon::Exception::HTTP::NotFound->throw;
+        } else {
+            die $msg;
+        }
     };
     unless ( $controller->isa('Chiffon::Web::Controller') ) {
         die "$controller is not a sub class of Chiffon::Web::Controller";
@@ -102,7 +107,7 @@ sub dispatch {
 
     my ($controller, $action, $args) = $self->router_class->match($self->req->env);
     unless ( $controller ) {
-        my $msg = "Controller $controller not found";
+        my $msg = "Controller not found";
         warn $msg;
         Chiffon::Exception::HTTP::NotFound->throw(res => $msg);
     }
