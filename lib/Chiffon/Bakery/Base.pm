@@ -51,6 +51,9 @@ sub output_template {
 __DATA__
 
 @@ app.psgi.tx
+use strict;
+use warnings;
+
 use [% package %]::Web;
 use Plack::Builder;
 
@@ -97,6 +100,9 @@ return +{
 
 @@ Root.tx
 package [% package %];
+use strict;
+use warnings;
+
 use parent 'Chiffon';
 our $VERSION = '0.01';
 
@@ -104,7 +110,9 @@ our $VERSION = '0.01';
 
 @@ Container.tx
 package  [% package %]::Container;
-use Chiffon::Core;
+use strict;
+use warnings;
+
 use Chiffon::Container;
 
 1;
