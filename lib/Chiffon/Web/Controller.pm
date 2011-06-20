@@ -14,9 +14,9 @@ sub run_action {
     $action = "do_$action";
     $args ||= [];
 
-    $class->call_trigger('before_action', $c);
+    $class->call_trigger('before_action', $c, @$args);
     $class->$action($c, @$args);
-    $class->call_trigger('after_action', $c);
+    $class->call_trigger('after_action', $c, @$args);
     return $c;
 }
 
