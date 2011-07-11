@@ -33,6 +33,18 @@ sub html_content_type { 'text/html;charset=UTF-8' }
 
 sub encoding { 'utf-8' }
 
+sub set_prefix_map {
+    my $class = shift;
+    my %map = @_ == 1 ? %{$_[0]} : @_;
+        {
+            no strict 'refs';
+            no warnings 'redefine';
+            *{"$class\::prefix_map"} = sub { +{%map} };
+        }
+}
+
+sub prefix_map { +{} }
+
 sub set_use_modules {
     my $class = shift;
     my %modules = @_;
@@ -112,6 +124,19 @@ sub dispatch {
         Chiffon::Exception::HTTP::NotFound->throw(res => $msg);
     }
 
+    my $prefix_map = $self->prefix_map;
+    my $prefix   = '';
+
+    for my $pre ( keys %$prefix_map ) {
+        my $pattern = $prefix_map->{$pre};
+        my $p = ref($pattern) eq 'Regexp' ? $pattern : qr/^$pattern$/;
+        if( $self->req->http_host =~ $p ) {
+            $prefix = $pre;
+            last;
+        }
+    }
+
+    $controller = $prefix ?  join '::', $prefix, $controller : $controller;
     my $controller_class = join '::', ref($self), 'C', $controller;
 
     $self->load_controller($controller_class);
@@ -147,7 +172,9 @@ sub template {
 
 sub guess_template_path {
     my $self = shift;
-    return join "/", decamelize($self->controller), $self->action;
+    my $controller = $self->controller;
+    $controller =~ s{::}{/}g;
+    return join "/", decamelize($controller), $self->action;
 }
 
 sub render {
